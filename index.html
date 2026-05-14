@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>מיטל עוז — פסיכותרפיה אישית ומקצועית</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700;900&family=Assistant:wght@300;400;500;600;700;800&family=Heebo:wght@400;500;600;700&display=swap">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          sage:        '#9FA383',
+          'sage-deep': '#6f7257',
+          'sage-soft': '#cfd2b9',
+          'sage-mist': '#e6e7d6',
+          sand:        '#F0E9D6',
+          cream:       '#F7F1E3',
+          'cream-2':   '#EFE6D2',
+          terra:       '#cc785c',
+          'terra-deep':'#a9583e',
+          'terra-soft':'#E8C3AE',
+          rose:        '#D9A18E',
+          'rose-soft': '#F1D8C9',
+          ink:         '#3D2E26',
+          'ink-soft':  '#6B554A',
+          'ink-mute':  '#9D8678',
+        },
+        fontFamily: {
+          serif:     ['"Frank Ruhl Libre"','serif'],
+          assistant: ['Assistant','system-ui','sans-serif'],
+          heebo:     ['Heebo','system-ui','sans-serif'],
+        },
+        boxShadow: {
+          'soft':  '0 6px 24px -10px rgba(54,69,79,0.18)',
+          'lift':  '0 18px 50px -22px rgba(54,69,79,0.32)',
+        }
+      }
+    }
+  }
+</script>
+
+<style>
+  :root{
+    --sage:#9FA383; --sage-deep:#6f7257; --sage-soft:#cfd2b9; --sage-mist:#e6e7d6;
+    --sand:#F0E9D6; --cream:#F7F1E3; --cream-2:#EFE6D2;
+    --terra:#cc785c; --terra-deep:#a9583e; --terra-soft:#E8C3AE; --rose-soft:#F1D8C9;
+    --ink:#3D2E26; --ink-soft:#6B554A; --ink-mute:#9D8678;
+  }
+  html,body{background:var(--cream);}
+  body{font-family:'Assistant',system-ui,sans-serif;color:var(--ink);
+       font-feature-settings:"kern"; -webkit-font-smoothing:antialiased;
+       font-weight:400;}
+  h1,h2,h3,h4{font-family:'Frank Ruhl Libre','Assistant',serif;letter-spacing:-0.005em;font-weight:500;}
+  ::selection{background:var(--terra-soft);color:var(--ink);}
+
+  /* Smooth anchor scroll with sticky-nav offset */
+  html{scroll-behavior:smooth; scroll-padding-top:88px;}
+
+  /* Organic blob shape for the hero photo frame */
+  .blob-mask{
+    -webkit-mask-image: radial-gradient(closest-side at 50% 50%, #000 99%, transparent 100%);
+            mask-image: radial-gradient(closest-side at 50% 50%, #000 99%, transparent 100%);
+    border-radius: 62% 38% 55% 45% / 48% 52% 48% 52%;
+    animation: blobMorph 18s ease-in-out infinite;
+  }
+  @keyframes blobMorph{
+    0%,100%{border-radius:62% 38% 55% 45% / 48% 52% 48% 52%;}
+    33%   {border-radius:48% 52% 38% 62% / 56% 44% 56% 44%;}
+    66%   {border-radius:55% 45% 62% 38% / 42% 58% 42% 58%;}
+  }
+
+  /* Subtle entrance — defaults to visible so content never disappears if JS reveal fails */
+  .fade-in{opacity:1; transition:opacity .7s ease, transform .7s ease;}
+  .fade-in.pending{opacity:0; transform:translateY(8px);}
+  .fade-in.show{opacity:1; transform:none;}
+
+  /* Warm paper texture — very subtle */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(204,120,92,.08), transparent 38%),
+      radial-gradient(circle at 92% 8%,  rgba(159,163,131,.10), transparent 42%),
+      radial-gradient(circle at 80% 92%, rgba(217,161,142,.08), transparent 40%);
+  }
+  #root{position:relative; z-index:1;}
+
+  /* Floating ambient shapes */
+  .ambient{position:absolute; border-radius:50%; filter:blur(40px); opacity:.55; pointer-events:none;}
+
+  /* Wave divider tint */
+  .wave-sand{background:var(--sand);}
+
+  /* Form field */
+  .field{
+    background:#fffaf0;
+    border:1px solid #e3d6c2;
+    border-radius:18px;
+    padding:14px 16px;
+    font: inherit;
+    color:var(--ink);
+    width:100%;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .field::placeholder{color:var(--ink-mute);}
+  .field:focus{
+    outline:none;
+    border-color:var(--terra);
+    box-shadow:0 0 0 4px rgba(199,126,95,.18);
+    background:#fff;
+  }
+  .field.invalid{ border-color:#b85c4a; box-shadow:0 0 0 4px rgba(184,92,74,.16);}
+
+  /* Pill button */
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:14px 24px; border-radius:999px; font-weight:600;
+    transition: transform .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{background:var(--terra); color:#fff; box-shadow:0 12px 24px -14px rgba(204,120,92,.55);}
+  .btn-primary:hover{background:var(--terra-deep); transform:translateY(-1px);}
+  .btn-secondary{background:transparent; color:var(--ink); border:1px solid var(--ink-soft);}
+  .btn-secondary:hover{background:rgba(61,46,38,.04); border-color:var(--ink);}
+  .btn-ghost{background:#fff7e9; color:var(--ink); border:1px solid #e3d6c2;}
+  .btn-ghost:hover{background:#fff;}
+  .btn-whatsapp{background:#25D366; color:#fff;}
+  .btn-whatsapp:hover{background:#1fb558;}
+
+  /* Sticky CTA — desktop bar / mobile bubble */
+  .cta-bar{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    background: rgba(247,241,227,.92);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-top:1px solid #e3d6c2;
+    box-shadow: 0 -10px 30px -20px rgba(61,46,38,.18);
+  }
+  .cta-bubble{
+    position:fixed; bottom:18px; left:18px; z-index:40;
+    display:flex; flex-direction:column; gap:10px; align-items:flex-end;
+  }
+  .cta-bubble .blob-btn{
+    width:60px; height:60px; border-radius:999px;
+    display:grid; place-items:center; color:#fff;
+    box-shadow: 0 14px 28px -10px rgba(0,0,0,.28), 0 0 0 6px rgba(255,255,255,.4);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .cta-bubble .blob-btn:hover{transform:translateY(-2px);}
+  .cta-bubble .label{
+    background:#fff; color:var(--charcoal);
+    padding:8px 14px; border-radius:999px; font-weight:600; font-size:14px;
+    box-shadow: 0 10px 20px -10px rgba(54,69,79,.25);
+    border:1px solid #ece6d2;
+    transform: translateX(8px); opacity:0; transition: all .25s ease;
+    pointer-events:none;
+  }
+  .cta-bubble:hover .label{ transform:none; opacity:1;}
+
+  /* Nav link underline */
+  .nav-link{position:relative;}
+  .nav-link::after{
+    content:""; position:absolute; right:0; left:0; bottom:-6px; height:2px;
+    background:var(--terra); border-radius:2px;
+    transform: scaleX(0); transform-origin: right; transition: transform .25s ease;
+  }
+  .nav-link:hover::after, .nav-link.active::after{ transform: scaleX(1);}
+
+  /* Soft card — no harsh borders, gentle warmth */
+  .soft-card{
+    background:#fffaf0;
+    border:1px solid #ece1cb;
+    border-radius:28px;
+    box-shadow: 0 10px 30px -22px rgba(61,46,38,.18);
+  }
+  .warm-card{
+    background:linear-gradient(180deg, #fffaf0 0%, #fbf2e0 100%);
+    border-radius:32px;
+  }
+
+  /* Eyebrow line */
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;
+    font-family:'Assistant',sans-serif; font-size:13px;font-weight:600;
+    letter-spacing:.16em; color:var(--terra-deep); text-transform:uppercase;}
+  .eyebrow::before{content:""; width:28px; height:1.5px; background:var(--terra); border-radius:2px;}
+
+  /* Hand-drawn underline accent */
+  .scribble{position:relative; display:inline-block;}
+  .scribble svg{position:absolute; left:-4%; right:-4%; bottom:-12px; width:108%; height:14px;}
+
+  /* Quote mark */
+  .quote-mark{
+    font-family:'Frank Ruhl Libre', serif; font-size:180px; line-height:.7;
+    color:var(--terra); opacity:.18; user-select:none;
+  }
+
+  /* Soft botanical decoration */
+  .leaf-deco{position:absolute; opacity:.35; pointer-events:none;}
+
+  /* hide on small / large */
+  @media (min-width: 768px){
+    .only-mobile{display:none !important;}
+  }
+  @media (max-width: 767px){
+    .only-desktop{display:none !important;}
+  }
+</style>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<!-- Icons: inline SVG, no runtime dependency -->
+</head>
+<body class="bg-cream text-charcoal" style="background-color: rgb(245, 242, 232)">
+
+<div id="root"></div>
+
+<!-- Tweaks panel helpers -->
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<!-- App -->
+<script type="text/babel" src="app.jsx"></script>
+
+</body>
+</html>
