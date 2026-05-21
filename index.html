@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>מיטל עוז — פסיכותרפיה אישית ומקצועית</title>
+<title>מיטל עוז — פסיכותרפיסטית וקרימינולוגית M.A · גישה אקזיסטנציאליסטית</title>
+<meta name="description" content="מיטל עוז, פסיכותרפיסטית וקרימינולוגית M.A. גישה קיומית-אקזיסטנציאליסטית, בגובה העיניים. ליווי במשברי חיים, חרדה, בדידות, התמכרויות וטראומה. קליניקה במרכז תל אביב ומפגשים בזום.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -202,6 +203,10 @@
   /* Soft botanical decoration */
   .leaf-deco{position:absolute; opacity:.35; pointer-events:none;}
 
+  /* Hide horizontal scrollbar on Thoughts carousel */
+  .thoughts-strip::-webkit-scrollbar{display:none;}
+  .thoughts-strip{ -ms-overflow-style: none; scrollbar-width: none; }
+
   /* hide on small / large */
   @media (min-width: 768px){
     .only-mobile{display:none !important;}
@@ -223,6 +228,8 @@
 
 <!-- Tweaks panel helpers -->
 <script type="text/babel" src="tweaks-panel.jsx"></script>
+<!-- Articles content -->
+<script type="text/babel" src="articles.jsx"></script>
 <!-- App -->
 <script type="text/babel" src="app.jsx"></script>
 
