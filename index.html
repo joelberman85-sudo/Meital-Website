@@ -57,7 +57,8 @@
   body{font-family:'Assistant',system-ui,sans-serif;color:var(--ink);
        font-feature-settings:"kern"; -webkit-font-smoothing:antialiased;
        font-weight:400;}
-  h1,h2,h3,h4{font-family:'Frank Ruhl Libre','Assistant',serif;letter-spacing:-0.005em;font-weight:500;}
+  h1,h2,h3,h4{font-family:'Frank Ruhl Libre','Assistant',serif;letter-spacing:0;font-weight:400;}
+  h1,h2{letter-spacing:-0.005em;}
   ::selection{background:var(--terra-soft);color:var(--ink);}
 
   /* Smooth anchor scroll with sticky-nav offset */
@@ -76,10 +77,29 @@
     66%   {border-radius:55% 45% 62% 38% / 42% 58% 42% 58%;}
   }
 
-  /* Subtle entrance — defaults to visible so content never disappears if JS reveal fails */
-  .fade-in{opacity:1; transition:opacity .7s ease, transform .7s ease;}
-  .fade-in.pending{opacity:0; transform:translateY(8px);}
+  /* Subtle scroll-driven reveal — fade + soft rise. Always-visible fallback if JS fails. */
+  .fade-in{
+    opacity:1; transform:none;
+    transition: opacity 1.1s cubic-bezier(.22,1,.36,1), transform 1.1s cubic-bezier(.22,1,.36,1);
+    will-change: opacity, transform;
+  }
+  .fade-in.pending{opacity:0; transform:translateY(28px);}
   .fade-in.show{opacity:1; transform:none;}
+
+  /* Staggered children — first child fastest, later children delayed slightly */
+  .stagger > .fade-in:nth-child(1){ transition-delay:  0ms; }
+  .stagger > .fade-in:nth-child(2){ transition-delay: 90ms; }
+  .stagger > .fade-in:nth-child(3){ transition-delay:180ms; }
+  .stagger > .fade-in:nth-child(4){ transition-delay:270ms; }
+  .stagger > .fade-in:nth-child(5){ transition-delay:360ms; }
+  .stagger > .fade-in:nth-child(6){ transition-delay:450ms; }
+
+  /* Respect reduced-motion: turn animations off entirely */
+  @media (prefers-reduced-motion: reduce){
+    .fade-in, .fade-in.pending, .fade-in.show{
+      opacity:1 !important; transform:none !important; transition:none !important;
+    }
+  }
 
   /* Warm paper texture — very subtle */
   body::before{
@@ -206,6 +226,20 @@
   /* Hide horizontal scrollbar on Thoughts carousel */
   .thoughts-strip::-webkit-scrollbar{display:none;}
   .thoughts-strip{ -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Hero portrait — extends from forest col over the boundary into cream area (desktop only) */
+  @media (min-width: 768px){
+    .hero-portrait{
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: -28%;
+      width: 130%;
+      max-width: none;
+      height: auto;
+      aspect-ratio: 3 / 4;
+    }
+  }
 
   /* hide on small / large */
   @media (min-width: 768px){

@@ -84,9 +84,39 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
 // ─────────────────────────────────────────────────────────────────────────────
 // Reveal — already visible (safe fallback)
 // ─────────────────────────────────────────────────────────────────────────────
-const Reveal = ({ children, className = "", as: As = "div", ...rest }) => (
-  <As className={`fade-in show ${className}`} {...rest}>{children}</As>
-);
+const Reveal = ({ children, className = "", as: As = "div", delay, style, ...rest }) => {
+  const ref = useRef(null);
+  const [state, setState] = useState("show");
+
+  React.useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const reduce = window.matchMedia &&
+                   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || !("IntersectionObserver" in window)) { setState("show"); return; }
+
+    setState("pending");
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          setState("show");
+          obs.disconnect();
+        }
+      });
+    }, { threshold: 0.14, rootMargin: "0px 0px -8% 0px" });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const mergedStyle = delay != null ? { transitionDelay: `${delay}ms`, ...(style || {}) } : style;
+  return (
+    <As ref={ref} {...rest} style={mergedStyle}
+        className={`fade-in ${state} ${className}`}>
+      {children}
+    </As>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Top nav
@@ -99,7 +129,7 @@ function TopNav() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 80);
-      const ids = ["about", "approach", "clinics", "thoughts", "contact"];
+      const ids = ["about", "approach", "thoughts", "contact"];
       const y = window.scrollY + 140;
       let cur = "hero";
       for (const id of ids) {
@@ -116,58 +146,76 @@ function TopNav() {
   const links = [
     { href: "#about",    label: "אודות" },
     { href: "#approach", label: "הגישה הטיפולית" },
-    { href: "#clinics",  label: "הקליניקות" },
     { href: "#thoughts", label: "מחשבות על..." },
     { href: "#contact",  label: "יצירת קשר" },
   ];
 
   return (
-    <header className={`fixed top-0 inset-x-0 z-30 transition-all duration-300 ${
-      scrolled ? "bg-cream/92 backdrop-blur-md border-b border-[#e3d6c2]" : "bg-transparent"
-    }`}>
-      <div className="max-w-6xl mx-auto px-5 md:px-8 h-[76px] flex items-center justify-between">
+    <header className="fixed top-0 inset-x-0 z-30">
+      {/* forest background filling the whole header */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <img
+          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=70"
+          alt=""
+          className="w-full h-full object-cover"
+          style={{ objectPosition: "center 45%" }}
+        />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(180deg, rgba(20,30,20,.65) 0%, rgba(20,30,20,.60) 100%)"
+        }}/>
+      </div>
+
+      {/* utility strip — phone + address */}
+      <div className="hidden md:block border-b border-white/15">
+        <div className="max-w-6xl mx-auto px-5 md:px-8 h-9 flex items-center justify-between text-[13px] text-cream font-medium">
+          <a href={telHref} className="flex items-center gap-1.5 hover:text-white transition">
+            <I.Phone size={13}/>
+            <span dir="ltr">{CONTACT.phone}</span>
+          </a>
+          <span className="flex items-center gap-1.5 text-cream/90">
+            <I.Pin size={13}/>
+            <span>קרליבך 25, תל אביב · גם בזום</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-[72px] flex items-center justify-between">
         <a href="#hero" className="flex items-center gap-3" aria-label="מיטל עוז">
-          <span className={`w-11 h-11 rounded-full overflow-hidden ring-2 transition-colors ${scrolled ? "ring-terra-soft" : "ring-cream/60"}`}>
+          <span className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-white/70">
             <img src={PHOTO} alt="" className="w-full h-full object-cover"/>
           </span>
           <span className="leading-tight">
-            <span className={`block font-serif font-medium text-[18px] transition-colors ${scrolled ? "text-ink" : "text-cream"}`}>מיטל עוז</span>
-            <span className={`block text-[11px] tracking-[0.18em] transition-colors ${scrolled ? "text-ink-mute" : "text-cream/80"}`}>פסיכותרפיסטית · M.A</span>
+            <span className="block font-serif text-[18px] text-white drop-shadow-sm">מיטל עוז</span>
+            <span className="block text-[11px] tracking-[0.18em] text-cream/90 font-medium">פסיכותרפיסטית · M.A</span>
           </span>
         </a>
 
         <nav className="hidden md:flex items-center gap-7 text-[15px]">
           {links.map((l) => (
             <a key={l.href} href={l.href}
-               className={`nav-link transition ${
-                 scrolled
-                   ? (active === l.href.slice(1) ? "active text-ink font-medium" : "text-ink-soft hover:text-ink")
-                   : (active === l.href.slice(1) ? "active text-cream font-medium" : "text-cream/85 hover:text-cream")
-               }`}>
+               className={`nav-link transition font-semibold drop-shadow-sm ${active === l.href.slice(1) ? "active text-white" : "text-cream hover:text-white"}`}>
               {l.label}
             </a>
           ))}
         </nav>
 
         <a href={waHref} target="_blank" rel="noreferrer"
-           className={`hidden md:inline-flex btn text-[14px] py-2.5 ${
-             scrolled ? "btn-primary" : "bg-white/15 hover:bg-white/25 text-cream border border-cream/40 backdrop-blur-sm"
-           }`}>
+           className="hidden md:inline-flex btn btn-primary text-[14px] py-2.5">
           <I.Whatsapp size={15} stroke={0}/> דברו איתי
         </a>
 
-        <button className={`md:hidden p-2 -mr-2 ${scrolled ? "text-ink" : "text-cream"}`}
+        <button className="md:hidden p-2 -mr-2 text-white drop-shadow"
                 onClick={() => setMobileOpen((s) => !s)} aria-label="תפריט">
           {mobileOpen ? <I.X /> : <I.Menu />}
         </button>
       </div>
 
-      <div className={`md:hidden overflow-hidden transition-[max-height] duration-300 bg-cream/95 backdrop-blur-md border-b border-[#e3d6c2]
+      <div className={`md:hidden overflow-hidden transition-[max-height] duration-300 bg-ink/85 backdrop-blur-md border-t border-white/20
         ${mobileOpen ? "max-h-96" : "max-h-0"}`}>
         <nav className="flex flex-col px-6 py-2">
           {links.map((l) => (
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
-               className="py-3 border-b border-[#e3d6c2] last:border-0 text-ink-soft">
+               className="py-3 border-b border-white/15 last:border-0 text-cream font-medium">
               {l.label}
             </a>
           ))}
@@ -178,75 +226,9 @@ function TopNav() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Nature banner — slim forest header strip (yehudittherapy style)
+// Nature banner — full hero, all intro text overlaid on forest image
 // ─────────────────────────────────────────────────────────────────────────────
-function NatureBanner() {
-  return (
-    <section id="hero" className="relative w-full h-[260px] md:h-[300px] overflow-hidden">
-      <img
-        src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=2400&q=70"
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ objectPosition: "center 60%" }}
-      />
-      <div className="absolute inset-0" style={{
-        background: "linear-gradient(180deg, rgba(40,34,28,.40) 0%, rgba(40,34,28,.25) 60%, rgba(247,241,227,.85) 100%)"
-      }}/>
-
-      <div className="relative h-full max-w-6xl mx-auto px-5 md:px-8 flex items-end pb-7 md:pb-10">
-        <div className="w-full flex items-end justify-between gap-6">
-          {/* Right (RTL start): name + title */}
-          <div className="text-cream">
-            <h1 className="font-serif font-medium tracking-tight leading-none text-[36px] sm:text-[46px] md:text-[56px]">
-              מיטל עוז
-            </h1>
-            <p className="font-serif italic mt-2 text-[15px] sm:text-[17px] md:text-[20px] text-cream/90">
-              פסיכותרפיסטית · קרימינולוגית <span dir="ltr">M.A</span>
-            </p>
-          </div>
-          {/* Left: compact contact icons */}
-          <div className="hidden sm:flex items-center gap-2">
-            <a href={telHref} aria-label="טלפון"
-               className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-terra-deep grid place-items-center transition shadow-sm">
-              <I.Phone size={16}/>
-            </a>
-            <a href={waHref} target="_blank" rel="noreferrer" aria-label="WhatsApp"
-               className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#1fb558] grid place-items-center transition shadow-sm">
-              <I.Whatsapp size={16} stroke={0}/>
-            </a>
-            <a href={CONTACT.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook"
-               className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-[#1877F2] grid place-items-center transition shadow-sm">
-              <I.Facebook size={18} stroke={0}/>
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Hero — quiet personal intro that lives below the banner
-function Hero({ headline, ctaText, openingQuote }) {
-  const variants = {
-    "warm-personal": {
-      kicker: "פסיכותרפיה קיומית · בגובה העיניים",
-      h1:     "כאן בשבילך, ברגעים הקשים כאחד.",
-      sub:    "פסיכותרפיסטית וקרימינולוגית M.A, מתמחה בפסיכותרפיה קיומית-אקזיסטנציאליסטית ובטיפול בהתמכרויות. אני מלווה צעירים ומבוגרים במשברי חיים, בתחושת תקיעות, בחרדה, בבדידות ובחיפוש אחר משמעות.",
-    },
-    "space-to-breathe": {
-      kicker: "מרחב להקשבה · להתבוננות · לצמיחה",
-      h1:     "יש מקום לנשום.",
-      sub:    "טיפול נפשי שאינו מתיימר ל׳תקן׳ אותך, אלא לפגוש אותך. בגישה הקיומית, ביחד נתבונן בקשר שבין הסיפור שלך, הערכים שלך, והמקום שאליו הגעת — ונבנה דרך משם, בקצב שלך.",
-    },
-    "soft-strength": {
-      kicker: "להחזיק במושכות החיים · צעד-צעד",
-      h1:     "הכאב שלך אמיתי. וגם הדרך החוצה.",
-      sub:    "מאמינה בטיפול בגובה העיניים, מחובר למציאות היום-יומית. ביחד נמפה את הקושי, נכיר במורכבותו, ונחפש את הדרכים שלך — שלך בלבד — לחיות עם יותר חופש, יותר חיבור, ויותר נשימה.",
-    },
-  };
-  const v = variants[headline] || variants["warm-personal"];
-
+function NatureBanner({ ctaText, openingQuote }) {
   const quotes = {
     frankl: {
       text: "אפשר ליטול מאיתנו כמעט הכל, חוץ מדבר אחד: את החופש להחליט כיצד להגיב למצבי החיים שלנו.",
@@ -260,49 +242,82 @@ function Hero({ headline, ctaText, openingQuote }) {
   const q = quotes[openingQuote] || quotes.frankl;
 
   return (
-    <section id="intro" className="relative pt-14 md:pt-20 pb-20 md:pb-28">
-      <div className="relative max-w-6xl mx-auto px-5 md:px-8 grid md:grid-cols-12 gap-10 md:gap-14 items-center">
-        {/* text */}
-        <div className="md:col-span-7 order-2 md:order-1">
-          <Reveal>
-            <div className="text-[12px] tracking-[0.22em] uppercase text-terra-deep font-semibold mb-5">
-              {v.kicker}
-            </div>
-            <h2 className="font-serif text-ink text-[32px] sm:text-[40px] md:text-[48px] leading-[1.15] tracking-tight font-medium">
-              {v.h1}
-            </h2>
-            <p className="mt-6 text-[17px] md:text-[18px] text-ink-soft leading-[1.9] max-w-[58ch] font-light">
-              {v.sub}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a href={waHref} target="_blank" rel="noreferrer" className="btn btn-primary">
-                <I.Whatsapp size={17} stroke={0}/> {ctaText}
-              </a>
-              <a href="#about" className="btn btn-ghost">
-                קצת עליי <I.ArrowL size={15} stroke={2}/>
-              </a>
-            </div>
-          </Reveal>
-        </div>
+    <section id="hero" className="relative w-full bg-cream pt-[160px] md:pt-[200px] pb-20 md:pb-32 overflow-hidden">
+      <div className="relative max-w-6xl mx-auto px-5 md:px-8">
+        <div className="grid md:grid-cols-12 gap-12 md:gap-20 items-start">
 
-        {/* photo */}
-        <div className="md:col-span-5 order-1 md:order-2">
-          <Reveal>
-            <div className="relative w-[260px] sm:w-[320px] md:w-full max-w-[400px] aspect-[4/5] mx-auto">
-              <div className="absolute inset-0 overflow-hidden rounded-[28px]"
-                   style={{ boxShadow: "0 30px 60px -30px rgba(61,46,38,.30)" }}>
-                <img src={PHOTO} alt="מיטל עוז, פסיכותרפיסטית"
-                     className="w-full h-full object-cover"
-                     style={{ objectPosition: "center 28%" }}/>
+          {/* TEXT — right column in RTL (8/12) */}
+          <div className="md:col-span-7 md:order-1 order-2 md:pt-6">
+            <Reveal>
+              <div className="text-[11px] md:text-[12px] tracking-[0.28em] uppercase text-terra-deep font-medium mb-7">
+                פסיכותרפיה קיומית · אקזיסטנציאליסטית
               </div>
-              <div className="absolute -bottom-5 -right-3 md:-right-8 bg-white border border-[#ece1cb] rounded-2xl px-5 py-3.5 max-w-[260px] shadow-soft">
-                <p className="font-serif text-[14px] leading-snug text-ink italic">
+            </Reveal>
+
+            <Reveal delay={80}>
+              <h1 className="font-serif text-ink leading-[1.04] text-[42px] sm:text-[56px] md:text-[64px]">
+                מיטל עוז
+              </h1>
+              <p className="mt-4 text-[15px] sm:text-[17px] md:text-[19px] tracking-[0.04em] text-ink-soft">
+                פסיכותרפיסטית · קרימינולוגית <span dir="ltr">M.A</span>
+              </p>
+            </Reveal>
+
+            <Reveal delay={180}>
+              <ul className="mt-10 space-y-3 text-[15.5px] md:text-[17px] text-ink leading-[1.6] font-light">
+                <li className="flex items-start gap-3.5">
+                  <span className="mt-2.5 w-1.5 h-1.5 rounded-full bg-terra shrink-0"/>
+                  <span>טיפול במשברי החיים, תחושת תקיעות ובדידות.</span>
+                </li>
+                <li className="flex items-start gap-3.5">
+                  <span className="mt-2.5 w-1.5 h-1.5 rounded-full bg-sage-deep shrink-0"/>
+                  <span>טיפול בהתמכרויות.</span>
+                </li>
+              </ul>
+            </Reveal>
+
+            <Reveal delay={260}>
+              <div className="mt-12 flex flex-wrap items-center gap-3">
+                <a href={waHref} target="_blank" rel="noreferrer" className="btn btn-primary">
+                  <I.Whatsapp size={17} stroke={0}/> {ctaText}
+                </a>
+                <a href="#about" className="btn btn-ghost">
+                  קצת עליי <I.ArrowL size={14} stroke={2}/>
+                </a>
+              </div>
+            </Reveal>
+
+            <Reveal delay={340}>
+              <figure className="mt-14 pr-6 border-r-2 border-terra/40 max-w-[50ch]">
+                <p className="font-serif italic text-ink text-[16px] md:text-[18px] leading-[1.75]">
                   ״{q.text}״
                 </p>
-                <div className="mt-1.5 text-[11px] text-ink-mute">— {q.who}</div>
+                <figcaption className="mt-3 text-[13px] text-ink-mute">— {q.who}</figcaption>
+              </figure>
+            </Reveal>
+          </div>
+
+          {/* PORTRAIT — left column (5/12), with offset sage block behind */}
+          <div className="md:col-span-5 md:order-2 order-1 flex justify-center md:justify-start">
+            <Reveal delay={120}>
+              <div className="relative">
+                {/* offset sage block — extends up-and-left behind the photo */}
+                <div
+                  className="absolute -top-8 md:-top-12 -right-6 md:-right-10 w-[78%] h-[110%]
+                             bg-[#b8bda3] hidden md:block"
+                  aria-hidden="true"
+                />
+                {/* photo */}
+                <div className="relative w-[240px] sm:w-[280px] md:w-[300px] aspect-[3/4] overflow-hidden
+                                shadow-[0_24px_60px_-24px_rgba(61,46,38,.42)]">
+                  <img src={PHOTO} alt="מיטל עוז, פסיכותרפיסטית"
+                       className="w-full h-full object-cover"
+                       style={{ objectPosition: "center 25%" }}/>
+                </div>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
+
         </div>
       </div>
     </section>
@@ -310,14 +325,50 @@ function Hero({ headline, ctaText, openingQuote }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Intro — "מהו בכלל משבר" — first content section under the banner
+// ─────────────────────────────────────────────────────────────────────────────
+function CrisisIntro() {
+  return (
+    <section className="relative py-20 md:py-28">
+      <div className="max-w-3xl mx-auto px-5 md:px-8">
+        <Reveal>
+          <h2 className="font-serif text-ink text-[30px] md:text-[40px] leading-[1.2] font-medium">
+            מהו בכלל משבר ומתי כדאי לפנות לטיפול?
+          </h2>
+          <p className="mt-4 font-serif italic text-[20px] md:text-[24px] text-terra-deep leading-snug">
+            אין סיבה לא נכונה או זמן לא נכון לפנות לטיפול.
+          </p>
+
+          <div className="mt-8 space-y-5 text-[16.5px] md:text-[18px] text-ink-soft leading-[1.95] font-light">
+            <p>
+              משבר יכול להיות תחושה או הרגשה שזרים לכם: שינוי שהתרחש בחיים, בזוגיות,
+              במשפחה, בקריירה. צומת שאתם מרגישים תקועים בה, שגרה שוחקת, או הרגל שלא עושה
+              לכם טוב.
+            </p>
+            <p>
+              כל תחושת מצוקה או חוסר אונים יכולה להיות סיבה לפנות לסיוע — בין אם אנחנו
+              יודעים מאיפה היא מגיעה ובין אם לא. לעיתים גם אירועים שנראים לנו שוליים,
+              יכולים להיות סיבה לפנות לטיפול.
+            </p>
+            <p className="text-ink">
+              טיפול נכון ומותאם אישית מספק לנו כלים להתבוננות פנימית מיטיבה, מאפשר למצוא
+              את דרכי ההתמודדות הנכונות עבורנו — ואף לצמוח מתוך הקשיים שלנו.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
 // Specialties — editorial, no boxes
 // ─────────────────────────────────────────────────────────────────────────────
 function SpecialtiesStrip() {
   const items = [
     { icon: <I.Heart/>,  label: "משברי חיים",       sub: "תקיעות · בדידות · אובדן · מעברים" },
     { icon: <I.Wind/>,   label: "חרדה ודיכאון",      sub: "מצוקה רגשית מתמשכת" },
-    { icon: <I.Shield/>, label: "התמכרויות",         sub: "התמחות מקצועית · ליווי בני משפחה" },
-    { icon: <I.Users/>,  label: "טראומה ויחסים",     sub: "זוגיות · משפחה · אובדן" },
+    { icon: <I.Shield/>, label: "התמכרויות",         sub: ["תהליכי גמילה מותאמים אישית", "ליווי בני המשפחה"] },
+    { icon: <I.Users/>,  label: "טראומה ויחסים",     sub: ["משברים בזוגיות", "יחסי משפחה"] },
   ];
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
@@ -328,10 +379,9 @@ function SpecialtiesStrip() {
       <div className="relative max-w-6xl mx-auto px-5 md:px-8">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto mb-14 md:mb-20">
-            <div className="eyebrow justify-center flex mb-5">תחומי טיפול</div>
-            <h2 className="font-serif text-ink text-[36px] md:text-[46px] leading-[1.12] font-medium tracking-tight">
-              המקומות שבהם<br className="md:hidden"/>{" "}
-              <span className="text-terra-deep italic">אני יושבת מולך.</span>
+            <div className="eyebrow justify-center flex mb-5">תחומי טיפול וליווי</div>
+            <h2 className="font-serif text-ink text-[36px] md:text-[46px] leading-[1.12] font-medium">
+              <span className="text-terra-deep italic">במה אוכל לעזור לכם?</span>
             </h2>
           </div>
         </Reveal>
@@ -344,11 +394,13 @@ function SpecialtiesStrip() {
                 <div className="text-sage-deep mb-5 flex md:justify-start justify-center">
                   {React.cloneElement(it.icon, { size: 28, stroke: 1.4 })}
                 </div>
-                <div className="font-serif text-ink text-[20px] md:text-[24px] font-medium leading-tight">
+                <div className="font-serif text-ink text-[20px] md:text-[24px] leading-tight">
                   {it.label}
                 </div>
-                <div className="mt-2.5 text-[14px] text-ink-mute font-light leading-[1.6]">
-                  {it.sub}
+                <div className="mt-2.5 text-[14px] text-ink-mute font-light leading-[1.7]">
+                  {Array.isArray(it.sub)
+                    ? it.sub.map((s, j) => <div key={j}>{s}</div>)
+                    : it.sub}
                 </div>
               </div>
             </Reveal>
@@ -391,7 +443,7 @@ function About() {
         <div className="md:col-span-7">
           <Reveal>
             <div className="eyebrow mb-5">אודות</div>
-            <h2 className="font-serif text-ink text-[40px] md:text-[54px] leading-[1.08] font-medium tracking-tight">
+            <h2 className="font-serif text-ink text-[40px] md:text-[54px] leading-[1.08] font-medium">
               שמי מיטל עוז.<br/>
               <span className="text-terra-deep italic">פסיכותרפיסטית וקרימינולוגית M.A.</span>
             </h2>
@@ -413,8 +465,7 @@ function About() {
                 או במשפחה, מוות או מחלה של אדם קרוב, ועוד.
               </p>
               <p className="font-serif italic text-ink text-[20px] leading-[1.7] pr-5 border-r-2 border-terra/40">
-                אני מאמינה שטיפול רגשי צריך להיות בגובה העיניים, ומחובר למציאות היום-יומית.
-                לא לתקן — ללוות. לא להעמיד את המטפלת על במה — לשבת לצידך, ולקחת נשימה איתך.
+                אני מאמינה שטיפול רגשי צריך להיות — בגובה העיניים, ומחובר למציאות היום-יומית.
               </p>
             </div>
 
@@ -455,222 +506,54 @@ function About() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// What is a crisis — when to come for therapy
-// ─────────────────────────────────────────────────────────────────────────────
-function WhenToCome() {
-  return (
-    <section className="relative py-16 md:py-24 overflow-hidden">
-      <div className="absolute inset-0 -z-0"
-           style={{ background: "linear-gradient(180deg, transparent 0%, rgba(207,210,185,.18) 50%, transparent 100%)" }}/>
-      <div className="relative max-w-4xl mx-auto px-5 md:px-8">
-        <Reveal>
-          <div className="text-center">
-            <div className="eyebrow justify-center flex mb-5">מתי כדאי לפנות לטיפול?</div>
-            <h2 className="font-serif text-ink text-[36px] md:text-[48px] leading-[1.1] font-medium tracking-tight">
-              אין סיבה לא נכונה,
-              <br/>
-              <span className="text-terra-deep italic">או זמן לא נכון.</span>
-            </h2>
-          </div>
-        </Reveal>
-
-        <Reveal>
-          <div className="mt-12 space-y-6 text-[17px] md:text-[18px] leading-[1.9] text-ink-soft font-light max-w-2xl mx-auto">
-            <p>
-              משבר יכול להיות תחושה או הרגשה שזרים לכם: שינוי שהתרחש בחיים, בזוגיות, במשפחה,
-              בקריירה. צומת שאתם מרגישים תקועים בה. שגרה שוחקת. הרגל שלא עושה לכם טוב.
-            </p>
-            <p>
-              כל תחושת מצוקה או חוסר אונים יכולה להיות סיבה לפנות לסיוע — בין אם אנחנו יודעים
-              מאיפה היא מגיעה, ובין אם לא. לעיתים גם אירועים שנראים לנו שוליים, יכולים להיות
-              סיבה לפנות לטיפול.
-            </p>
-            <p className="text-ink font-serif italic text-[20px] leading-[1.75]">
-              טיפול נכון ומותאם אישית מספק לנו כלים להתבוננות פנימית מיטיבה, מאפשר למצוא
-              את דרכי ההתמודדות הנכונות עבורנו — ואף לצמוח מתוך הקשיים שלנו.
-            </p>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Approach — מהי פסיכותרפיה אקזיסטנציאליסטית
 // ─────────────────────────────────────────────────────────────────────────────
 function Approach() {
-  const pillars = [
-    {
-      h: "בגובה העיניים",
-      d: "טיפול שלא ׳מאבחן׳ אותך מלמעלה. הגישה הקיומית מאמינה שכולנו חשופים לאתגרי הקיום — חרדה, בדידות, תקיעות, דכאון — ושלכל אחד יש דרך התמודדות שונה. אני יושבת מולך, לא מעלייך.",
-      icon: <I.Sun size={22}/>,
-    },
-    {
-      h: "הקשר הוא הריפוי",
-      d: "בבסיס הטיפול נמצא הקשר האנושי בין המטפלת למטופל. אני מלווה אותך במסע אל תוך עצמך — מסע שעלול להיות לא קל, אבל אתה לא לבד בו. צוללת איתך לתחושות, מחזקת, מציעה עוד נקודות מבט.",
-      icon: <I.Heart size={22}/>,
-    },
-    {
-      h: "מרחב לדבר בחופשיות",
-      d: "כשניתן לנו מרחב לבטא את רגשותינו — גם המאיימים ביותר — אנחנו מרגישים הקלה ופורקן. וכשהמרחב הזה לא קיים, פעם אחר פעם, בדידות קשה יכולה להציף אותנו.",
-      icon: <I.Wind size={22}/>,
-    },
-    {
-      h: "בקצב שלך",
-      d: "הכי חשוב, אני נמצאת לצידך בקצב שלך. הגישה מתאימה למי שמרגיש חרדה, דכאון, תקיעות או בדידות — ולמי שמרגיש שאיפשהו במהלך השגרה הכיוון נאבד, ומחפש את הדרך חזרה, או דרך חדשה.",
-      icon: <I.Compass size={22}/>,
-    },
-  ];
   return (
     <section id="approach" className="relative py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 -z-0"
            style={{ background: "linear-gradient(180deg, transparent 0%, rgba(241,216,201,.30) 30%, rgba(207,210,185,.20) 70%, transparent 100%)" }}/>
 
-      <div className="relative max-w-5xl mx-auto px-5 md:px-8">
+      <div className="relative max-w-3xl mx-auto px-5 md:px-8">
         <Reveal>
-          <div className="text-center max-w-2xl mx-auto">
+          <div className="text-center">
             <div className="eyebrow justify-center flex mb-5">הגישה הטיפולית</div>
-            <h2 className="font-serif text-ink text-[40px] md:text-[56px] leading-[1.08] font-medium tracking-tight">
-              פסיכותרפיה
-              <br/>
-              <span className="text-terra-deep italic">אקזיסטנציאליסטית.</span>
-            </h2>
-            <p className="mt-6 text-[18px] text-ink-soft leading-[1.85] font-light">
-              גישה טיפולית המאמינה כי החיים מהווים אתגר עבור כולנו — וכי תחושות של דכאון,
-              בדידות, תקיעות וחרדה, הן חלק מהתנאי האנושי. הטיפול לא בא ׳לפתור׳ אותך, אלא
-              ללוות אותך בתוך זה — וגם דרך זה.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="mt-16 space-y-6">
-          {pillars.map((p, i) => (
-            <Reveal key={i}>
-              <div className="relative grid md:grid-cols-12 gap-6 md:gap-10 items-start py-8 md:py-10 border-b border-[#e3d6c2] last:border-0">
-                <div className="md:col-span-4 flex items-center gap-5">
-                  <div className="relative inline-block">
-                    <span className="font-serif text-[64px] md:text-[80px] leading-none text-terra-soft/80 italic font-medium">
-                      0{i+1}
-                    </span>
-                    <span className="absolute -top-1 -left-2 md:-top-2 md:-left-3 w-8 h-8 md:w-11 md:h-11 rounded-full bg-rose-soft text-terra-deep grid place-items-center">
-                      {React.cloneElement(p.icon, { size: 16 })}
-                    </span>
-                  </div>
-                </div>
-                <div className="md:col-span-8">
-                  <h3 className="font-serif text-ink text-[26px] md:text-[32px] font-medium leading-tight">{p.h}</h3>
-                  <p className="mt-3 text-[17px] text-ink-soft leading-[1.85] font-light max-w-[60ch]">{p.d}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-
-        <Reveal>
-          <div className="relative mt-16 md:mt-24 max-w-2xl mx-auto text-center">
-            <p className="font-serif text-[22px] md:text-[28px] leading-[1.55] text-ink italic font-medium">
-              החרדה הזו אינה הופכת אותך
-              <br className="hidden md:block"/>
-              לחולה, שונה או משוגע —
-              <br className="hidden md:block"/>
-              <span className="text-terra-deep">פשוט בן אדם.</span>
-            </p>
-            <div className="mt-6 flex items-center justify-center gap-3">
-              <span className="w-9 h-9 rounded-full overflow-hidden">
-                <img src={PHOTO} alt="" className="w-full h-full object-cover"/>
-              </span>
-              <span className="text-[13px] text-ink-mute tracking-wider">— מיטל</span>
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Two clinics — editorial image/text blocks, alternating
-// ─────────────────────────────────────────────────────────────────────────────
-function Clinics() {
-  const list = [
-    {
-      kicker: "קליניקה פרטית",
-      title:  "מרכז תל אביב",
-      desc:   "מפגש דיאלוגי, אחד-על-אחד, של שעה תמימה — דיסקרטי, חם, ובקצב שלך. מתאים לטיפול ארוך-טווח, ייעוץ ממוקד, או מסע מתמשך של התבוננות פנימית.",
-      bullets: ["מפגשים פרונטליים", "מפגשים בזום", "פגישת היכרות לתיאום ציפיות"],
-      image:  "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=70",
-      imageAlt: "פינת ישיבה רגועה בקליניקה",
-      tone:  "cream",
-    },
-    {
-      kicker: "מכון לטיפול בהתמכרויות",
-      title:  "טיפול ייעודי בהתמכרויות",
-      desc:   "במסגרת תפקידי במכון, אני מלווה אנשים בעיצומו של מאבק עם אלכוהול, סמים והתנהגויות כפייתיות — ובני משפחה שנפגעו ביחד איתם. ניסיון מצטבר ועבודה במסגרת מקצועית מובנית.",
-      bullets: ["טיפול ממוקד התמכרויות", "ליווי בני משפחה", "עבודה בצוות רב-מקצועי"],
-      image:  "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&q=70",
-      imageAlt: "אור רך בין עלים",
-      tone:  "sage",
-    },
-  ];
-  return (
-    <section id="clinics" className="relative py-20 md:py-32 overflow-hidden">
-      <div className="max-w-6xl mx-auto px-5 md:px-8">
-        <Reveal>
-          <div className="text-center max-w-2xl mx-auto mb-14 md:mb-20">
-            <div className="eyebrow justify-center flex mb-5">היכן נפגשים</div>
-            <h2 className="font-serif text-ink text-[40px] md:text-[54px] leading-[1.08] font-medium tracking-tight">
-              שתי מסגרות,<br/>
-              <span className="text-terra-deep italic">אותו קשב.</span>
+            <h2 className="font-serif text-ink text-[34px] md:text-[46px] leading-[1.15] font-medium">
+              מהי פסיכותרפיה <span className="text-terra-deep italic">אקזיסטנציאליסטית</span>
+              <br/>ולמי זה מתאים?
             </h2>
           </div>
         </Reveal>
 
-        <div className="space-y-20 md:space-y-28">
-          {list.map((c, i) => (
-            <Reveal key={i}>
-              <div className="grid md:grid-cols-12 gap-8 md:gap-14 items-center">
-                {/* image */}
-                <div className={`md:col-span-7 ${i % 2 === 1 ? "md:order-2" : ""}`}>
-                  <div className="relative">
-                    <div className={`absolute -inset-4 md:-inset-6 -z-10 rounded-[36px] ${
-                      c.tone === "cream" ? "bg-[#f1d8c9]/40" : "bg-sage-mist/60"
-                    }`}/>
-                    <div className="relative overflow-hidden rounded-[24px] aspect-[5/4] md:aspect-[16/11]">
-                      <img src={c.image} alt={c.imageAlt} loading="lazy"
-                           className="w-full h-full object-cover"/>
-                    </div>
-                  </div>
-                </div>
-
-                {/* text */}
-                <div className={`md:col-span-5 ${i % 2 === 1 ? "md:order-1" : ""}`}>
-                  <div className={`text-[12px] tracking-[0.18em] uppercase font-semibold mb-3 ${
-                    c.tone === "cream" ? "text-terra-deep" : "text-sage-deep"
-                  }`}>
-                    {c.kicker}
-                  </div>
-                  <h3 className="font-serif text-ink text-[34px] md:text-[44px] font-medium leading-[1.1] tracking-tight">
-                    {c.title}
-                  </h3>
-                  <p className="mt-5 text-[17px] text-ink-soft leading-[1.9] font-light">
-                    {c.desc}
-                  </p>
-                  <ul className="mt-7 space-y-3">
-                    {c.bullets.map((b, j) => (
-                      <li key={j} className="flex items-center gap-3 text-[15px] text-ink">
-                        <span className={`w-1.5 h-1.5 rounded-full ${
-                          c.tone === "cream" ? "bg-terra" : "bg-sage-deep"
-                        }`}/>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+        <Reveal>
+          <div className="mt-12 md:mt-16 space-y-6 text-[17px] md:text-[18px] leading-[1.95] text-ink-soft font-light">
+            <p>
+              פסיכותרפיה אקזיסטנציאליסטית (קיומית) היא גישה טיפולית, המאמינה כי טיפול
+              רגשי צריך להיות בגובה העיניים, ומחובר למציאות היום-יומית שלנו. הגישה מאמינה
+              כי החיים מהווים אתגר עבור כולנו, וכי כולנו חשופים לאתגרי הקיום — ומרגישים
+              תחושות של דכאון, בדידות, תקיעות וחרדה — וכי לכל אחד דרך התמודדות שונה.
+            </p>
+            <p>
+              הגישה מאמינה כי בבסיסו של הטיפול הרגשי נמצא הקשר האנושי בין המטפל למטופל.
+              קשר שבו המטפל מלווה את המטופל במסע אל תוך עצמו. מסע אשר עלול להיות לא קל,
+              אך המטופל אינו לבד בו.
+            </p>
+            <p>
+              המטופל יכול לחוות רגשות לא פשוטים, אך המטפל לצידו — צולל איתו לתחושות,
+              מחזק ומעודד, נותן עוד נקודות מבט. והכי חשוב, נמצא לצידו בקצב שלו.
+            </p>
+            <p className="font-serif italic text-ink text-[19px] md:text-[20px] leading-[1.8]">
+              אני מאמינה שכשניתן לנו מרחב לדבר בחופשיות, ולבטא את רגשותינו — גם המאיימים
+              ביותר — אנחנו מרגישים הקלה ופורקן. אני יודעת שכשאנחנו לא מוצאים את המרחב
+              הזה, פעם אחר פעם, תחושת בדידות קשה יכולה להציף אותנו.
+            </p>
+            <p>
+              פסיכותרפיה אקזיסטנציאליסטית מתאימה לכל מי שמרגיש תחושות חרדה, דכאון, תקיעות
+              או בדידות. לכל מי שמרגיש או מרגישה שאיפשהו במהלך שגרת החיים הכיוון נאבד,
+              והוא מחפש למצוא את הדרך חזרה — או מעוניין בדרך חדשה.
+            </p>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -733,7 +616,7 @@ function Thoughts() {
           <div className="flex items-end justify-between gap-6 mb-10 md:mb-14">
             <div className="max-w-xl">
               <div className="eyebrow mb-4">מחשבות על...</div>
-              <h2 className="font-serif text-ink text-[34px] md:text-[44px] leading-[1.1] font-medium tracking-tight">
+              <h2 className="font-serif text-ink text-[34px] md:text-[44px] leading-[1.1] font-medium">
                 דרכי התמודדות,
                 <span className="text-terra-deep italic"> מילים מהחדר.</span>
               </h2>
@@ -773,10 +656,7 @@ function Thoughts() {
                      className="w-full h-full object-cover transition duration-700 group-hover:scale-[1.03]"/>
               </div>
               <div className="flex-1 flex flex-col p-6">
-                <div className="text-[11px] tracking-[0.18em] uppercase text-terra-deep font-semibold mb-2">
-                  {a.kicker}
-                </div>
-                <h3 className="font-serif text-ink text-[22px] font-medium leading-[1.2] tracking-tight min-h-[3.2em]">
+                <h3 className="font-serif text-ink text-[22px] leading-[1.2] min-h-[3.2em]">
                   {a.title}
                 </h3>
                 <p className="mt-3 text-[14.5px] text-ink-soft leading-[1.7] font-light line-clamp-3 flex-1">
@@ -784,7 +664,7 @@ function Thoughts() {
                 </p>
                 <div className="mt-5 pt-4 border-t border-[#ece1cb] flex items-center justify-between">
                   <span className="text-[12px] text-ink-mute font-serif italic">{(a.paragraphs?.length || 0)} פסקאות</span>
-                  <span className="text-[13px] font-medium text-terra-deep flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
+                  <span className="text-[13px] text-terra-deep flex items-center gap-1.5 group-hover:gap-2.5 transition-all">
                     קראו עוד <I.ArrowL size={13} stroke={2}/>
                   </span>
                 </div>
@@ -813,10 +693,7 @@ function Thoughts() {
                 </div>
               )}
               <div className="px-6 md:px-14 py-10 md:py-14">
-                <div className="text-[12px] tracking-[0.16em] uppercase text-terra-deep font-semibold mb-3">
-                  {article.kicker}
-                </div>
-                <h2 className="font-serif text-ink text-[32px] md:text-[44px] leading-[1.1] font-medium tracking-tight">
+                <h2 className="font-serif text-ink text-[32px] md:text-[44px] leading-[1.1] font-medium">
                   {article.title}
                 </h2>
                 <p className="mt-6 font-serif italic text-[20px] md:text-[22px] leading-[1.6] text-ink-soft pr-5 border-r-2 border-terra/40">
@@ -884,13 +761,15 @@ function ContactForm() {
         <div className="md:col-span-5">
           <Reveal>
             <div className="eyebrow mb-5">יצירת קשר</div>
-            <h2 className="font-serif text-ink text-[40px] md:text-[54px] leading-[1.05] font-medium tracking-tight">
+            <h2 className="font-serif text-ink text-[40px] md:text-[54px] leading-[1.05] font-medium">
               אני כאן<br/>
               <span className="text-terra-deep italic">בשבילך.</span><br/>
               מוזמנים להתייעץ.
             </h2>
             <p className="mt-5 text-[17px] text-ink-soft leading-[1.85] font-light max-w-md">
-              לא חייבים לדעת בדיוק מה רוצים להגיד. אפשר להתחיל ב״היי, נתקעתי״ — וניקח משם.
+              הקליניקה נמצאת במיקום מרכזי בתל אביב — קרליבך 25.
+              <br/>
+              דרכי הגעה נוחות וחנייה באיזור.
             </p>
 
             <div className="mt-8 space-y-3">
@@ -948,18 +827,18 @@ function ContactForm() {
             <div className="warm-card border border-[#ece1cb] p-6 md:p-10 shadow-soft">
               {!sent ? (
                 <form onSubmit={onSubmit} noValidate>
-                  <h3 className="font-serif text-ink text-[26px] font-medium mb-1">השאירו הודעה</h3>
+                  <h3 className="font-serif text-ink text-[26px] mb-1">השאירו הודעה</h3>
                   <p className="text-[14px] text-ink-mute mb-7">פרטיכם יישארו בינינו בלבד.</p>
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <label className="block">
-                      <span className="block text-[13px] font-medium text-ink-soft mb-1.5">שם <span className="text-terra">*</span></span>
+                      <span className="block text-[13px] text-ink-soft mb-1.5">שם <span className="text-terra">*</span></span>
                       <input className={`field ${errors.name ? "invalid" : ""}`} type="text"
                              value={form.name} onChange={set("name")} placeholder="איך לפנות אליך?"/>
                       {errors.name && <span className="block text-[12px] text-terra-deep mt-1">{errors.name}</span>}
                     </label>
                     <label className="block">
-                      <span className="block text-[13px] font-medium text-ink-soft mb-1.5">טלפון <span className="text-terra">*</span></span>
+                      <span className="block text-[13px] text-ink-soft mb-1.5">טלפון <span className="text-terra">*</span></span>
                       <input className={`field ${errors.phone ? "invalid" : ""}`} type="tel" dir="ltr"
                              value={form.phone} onChange={set("phone")} placeholder="050-0000000"/>
                       {errors.phone && <span className="block text-[12px] text-terra-deep mt-1">{errors.phone}</span>}
@@ -967,7 +846,7 @@ function ContactForm() {
                   </div>
 
                   <label className="block mt-4">
-                    <span className="block text-[13px] font-medium text-ink-soft mb-1.5">הנושא (לא חובה)</span>
+                    <span className="block text-[13px] text-ink-soft mb-1.5">הנושא (לא חובה)</span>
                     <select className="field" value={form.topic} onChange={set("topic")}>
                       <option value="">בחרו נושא...</option>
                       <option>משבר חיים · תקיעות</option>
@@ -982,7 +861,7 @@ function ContactForm() {
                   </label>
 
                   <label className="block mt-4">
-                    <span className="block text-[13px] font-medium text-ink-soft mb-1.5">בכמה מילים, מה מביא אתכם? <span className="text-terra">*</span></span>
+                    <span className="block text-[13px] text-ink-soft mb-1.5">בכמה מילים, מה מביא אתכם? <span className="text-terra">*</span></span>
                     <textarea className={`field min-h-[120px] ${errors.message ? "invalid" : ""}`} rows={4}
                               value={form.message} onChange={set("message")}
                               placeholder="אפשר גם משפט קצר. אבין."/>
@@ -990,7 +869,7 @@ function ContactForm() {
                   </label>
 
                   <div className="mt-5">
-                    <span className="block text-[13px] font-medium text-ink-soft mb-2">איך נוח לכם שאחזור?</span>
+                    <span className="block text-[13px] text-ink-soft mb-2">איך נוח לכם שאחזור?</span>
                     <div className="flex flex-wrap gap-2">
                       {[
                         { v:"whatsapp", l:"וואטסאפ", icon:<I.Whatsapp size={14} stroke={0}/> },
@@ -999,7 +878,7 @@ function ContactForm() {
                       ].map(o => (
                         <button type="button" key={o.v}
                                 onClick={() => setForm(f => ({...f, prefer:o.v}))}
-                                className={`px-4 py-2 rounded-full border text-[14px] font-medium flex items-center gap-1.5 transition
+                                className={`px-4 py-2 rounded-full border text-[14px] flex items-center gap-1.5 transition
                                   ${form.prefer === o.v
                                     ? "bg-terra text-white border-terra"
                                     : "bg-white border-[#ece1cb] text-ink-soft hover:bg-cream-2"}`}>
@@ -1024,7 +903,7 @@ function ContactForm() {
                   <div className="w-16 h-16 rounded-full bg-rose-soft text-terra-deep grid place-items-center mb-5">
                     <I.Check size={28} stroke={2.5}/>
                   </div>
-                  <h3 className="font-serif text-ink text-[28px] font-medium mb-2">
+                  <h3 className="font-serif text-ink text-[28px] mb-2">
                     תודה {form.name.trim().split(" ")[0]}
                   </h3>
                   <p className="text-[17px] text-ink-soft leading-[1.8] font-light max-w-md">
@@ -1057,7 +936,7 @@ function Footer() {
             <span className="w-11 h-11 rounded-full overflow-hidden ring-2 ring-terra/50">
               <img src={PHOTO} alt="" className="w-full h-full object-cover"/>
             </span>
-            <span className="font-serif font-medium text-[20px]">מיטל עוז · M.A</span>
+            <span className="font-serif text-[20px]">מיטל עוז · M.A</span>
           </div>
           <p className="font-serif italic text-[18px] text-cream/80 leading-relaxed max-w-xs">
             ״טיפול רגשי בגובה העיניים, מחובר למציאות היום-יומית — ובקצב שלך.״
@@ -1068,7 +947,6 @@ function Footer() {
           <ul className="space-y-2 text-[15px] font-light">
             <li><a href="#about"    className="hover:text-terra-soft">אודות</a></li>
             <li><a href="#approach" className="hover:text-terra-soft">הגישה הטיפולית</a></li>
-            <li><a href="#clinics"  className="hover:text-terra-soft">הקליניקות</a></li>
             <li><a href="#thoughts" className="hover:text-terra-soft">מחשבות על...</a></li>
             <li><a href="#contact"  className="hover:text-terra-soft">יצירת קשר</a></li>
             <li><a href={CONTACT.tvUrl} target="_blank" rel="noreferrer" className="hover:text-terra-soft">כתבה בחדשות 13 →</a></li>
@@ -1164,13 +1042,11 @@ function App() {
     <div className="relative">
       <TopNav/>
       <main>
-        <NatureBanner/>
-        <Hero headline={t.headline} ctaText={t.ctaText} openingQuote={t.openingQuote}/>
+        <NatureBanner ctaText={t.ctaText} openingQuote={t.openingQuote}/>
+        <CrisisIntro/>
         <SpecialtiesStrip/>
         <About/>
-        <WhenToCome/>
         <Approach/>
-        <Clinics/>
         <Thoughts/>
         <ContactForm/>
       </main>
@@ -1178,10 +1054,7 @@ function App() {
       <StickyCTA ctaText={t.ctaText} showDesktopBar={t.showStickyDesktopBar}/>
 
       <TweaksPanel title="התאמות עיצוב">
-        <TweakSection label="כותרת ראשית"/>
-        <TweakRadio label="ניסוח" value={t.headline}
-                    options={["warm-personal","space-to-breathe","soft-strength"]}
-                    onChange={(v) => setTweak("headline", v)}/>
+        <TweakSection label="כפתור ראשי"/>
         <TweakText label="טקסט CTA" value={t.ctaText}
                    onChange={(v) => setTweak("ctaText", v)}/>
 
