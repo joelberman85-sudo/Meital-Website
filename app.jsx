@@ -55,7 +55,7 @@ stroke={color} strokeWidth="1.6" aria-hidden="true">
 // Nature image URLs (placeholders — user will replace)
 // ─────────────────────────────────────────────────────────────────────────────
 const NAT = {
-  maytal: "assets/maytal.jpg",
+  maytal: "maytal.jpg",
   clinic: "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1400&q=80",
   hero: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=1400&q=78",
   portrait: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=75",
