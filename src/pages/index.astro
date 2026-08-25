@@ -1,0 +1,28 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import CrisisIntro from '../components/CrisisIntro.astro';
+import About from '../components/About.astro';
+import QuoteBand from '../components/QuoteBand.astro';
+import SpecialtiesStrip from '../components/SpecialtiesStrip.astro';
+import Approach from '../components/Approach.astro';
+import Thoughts from '../components/Thoughts.astro';
+import ContactForm from '../components/ContactForm.astro';
+---
+
+<BaseLayout
+  title="מיטל עוז | פסיכותרפיסטית וקרימינולוגית | תל אביב"
+  description="פסיכותרפיסטית וקרימינולוגית M.A. גישה קיומית-אקזיסטנציאליסטית, בגובה העיניים. ליווי בחרדה, בדידות, התמכרויות וטראומה. קליניקה במרכז תל אביב וזום."
+  path="/"
+>
+  <Hero />
+  <CrisisIntro />
+  <About />
+  <QuoteBand style="background-color: rgb(231, 236, 222);">
+    אני מאמינה שטיפול רגשי צריך להיות — בגובה העיניים, ומחובר למציאות היום-יומית.
+  </QuoteBand>
+  <SpecialtiesStrip />
+  <Approach />
+  <Thoughts />
+  <ContactForm />
+</BaseLayout>
