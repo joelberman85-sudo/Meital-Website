@@ -1,0 +1,89 @@
+---
+// About — warm image + text, personal. Ported from app.jsx:349-432.
+import Reveal from './Reveal.astro';
+import Icon from './Icon.astro';
+import { CONTACT, waHref } from '../data/site.js';
+
+const creds = [
+  "B.A במדעי ההתנהגות",
+  "M.A טיפולי בקרימינולוגיה שיקומית (בהצטיינות)",
+  "תכנית תלת-שנתית · פסיכותרפיה אקזיסטנציאליסטית",
+  "התמחות בטיפול בהתמכרויות",
+  "מיינדפולנס · חמלה עצמית · ACT",
+  "חברה באיגוד הקרימינולוגים השיקומיים",
+  "חברה בארגון הרב-תחומי לפסיכותרפיה",
+];
+---
+
+<section id="about" class="relative py-20 md:py-28">
+  <div class="max-w-[1200px] mx-auto px-6 lg:px-10 grid md:grid-cols-12 gap-10 md:gap-16 items-center">
+    <!-- image — clinic -->
+    <div class="md:col-span-5 order-1">
+      <Reveal>
+        <div class="relative mx-auto max-w-[480px]">
+          <div class="absolute -inset-4 -z-10 rounded-[34px] bg-peach-soft" />
+          <div class="soft-img aspect-[4/3] shadow-lift">
+            <img src="/images/clinic.jpg" alt="הקליניקה" class="w-full h-full object-cover" />
+          </div>
+        </div>
+      </Reveal>
+    </div>
+
+    <!-- text -->
+    <div class="md:col-span-7 order-2">
+      <Reveal>
+        <span class="pill-label" style="background-color: rgb(232, 236, 223);">אודות</span>
+        <h2 class="display mt-5 text-[38px] md:text-[52px] leading-[1.1]">
+          שמי <span class="accent">מיטל עוז</span>
+        </h2>
+        <p class="mt-2 text-[19px] md:text-[22px] text-sage-deep font-semibold">
+          פסיכותרפיסטית וקרימינולוגית M.A.
+        </p>
+      </Reveal>
+
+      <Reveal delay={120}>
+        <div class="mt-7 space-y-5 text-[16px] md:text-[17.5px] leading-[1.95] text-ink-soft">
+          <p>
+            בעלת תואר ראשון במדעי ההתנהגות, ובוגרת תואר שני טיפולי בקרימינולוגיה
+            שיקומית בהצטיינות, עם התמחות בטיפול בהתמכרויות. מוסמכת התכנית התלת-שנתית
+            בפסיכותרפיה וייעוץ אקזיסטנציאליסטי.
+          </p>
+          <p>
+            כחלק מההתפתחות האישית והמקצועית שלי, התמקצעתי בלימודי בודהיזם, מיינדפולנס,
+            חמלה עצמית ו-ACT — ואלה תופסים מקום מרכזי באופן שבו אני יושבת מול אנשים בחדר.
+          </p>
+          <p>
+            אני מטפלת פרטית בקליניקה במרכז תל אביב, ובמכון לטיפול בהתמכרויות. במסגרת
+            תפקידי כמטפלת, אני עובדת עם צעירים ומבוגרים המתמודדים עם אתגרים קיומיים
+            שונים: דכאון, חרדה, תחושת תקיעות, התמכרויות, טראומה, בדידות, קשיים בזוגיות
+            או במשפחה, מוות או מחלה של אדם קרוב, ועוד.
+          </p>
+        </div>
+      </Reveal>
+
+      <Reveal delay={200}>
+        <div class="mt-8 card p-6 md:p-7" style="border-color: rgb(255, 255, 255); background-color: rgba(255, 255, 255, 0.357);">
+          <div class="grid sm:grid-cols-2 gap-x-7 gap-y-2.5">
+            {creds.map((c) => (
+              <div class="flex items-start gap-2.5 text-[14px] text-ink-soft">
+                <Icon name="Leaf" size={15} class="text-sage-deep mt-1 shrink-0" />
+                <span>{c}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <a href={CONTACT.tvUrl} target="_blank" rel="noreferrer"
+          class="mt-7 group inline-flex items-center gap-3 text-cta font-semibold border-b border-cta/40 pb-1 hover:gap-4 transition-all">
+          <Icon name="Tv" size={18} />
+          <span class="text-[15px]">בתקשורת · חדשות 13 — לקריאת הכתבה</span>
+          <Icon name="ArrowL" size={14} />
+        </a>
+
+        <div class="mt-8">
+          <a href={waHref} target="_blank" rel="noreferrer" class="btn btn-primary">קביעת פגישת היכרות <Icon name="ArrowL" size={16} /></a>
+        </div>
+      </Reveal>
+    </div>
+  </div>
+</section>

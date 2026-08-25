@@ -1,0 +1,60 @@
+---
+// StickyCTA — ported verbatim from the `StickyCTA` function in app.jsx:864-903.
+// Baked-in tweak defaults: ctaText -> CTA_TEXT, showDesktopBar -> SHOW_STICKY_DESKTOP_BAR.
+import Icon from './Icon.astro';
+import BrandMark from './BrandMark.astro';
+import { CONTACT, waHref, telHref, CTA_TEXT, SHOW_STICKY_DESKTOP_BAR } from '../data/site.js';
+---
+
+<div class="only-mobile cta-bubble transition-all duration-300 opacity-0 translate-y-3 pointer-events-none" id="sticky-cta-bubble">
+  <a href={waHref} target="_blank" rel="noreferrer" aria-label="פנייה בוואטסאפ"
+  class="blob-btn" style="background: #25D366">
+    <Icon name="Whatsapp" size={26} stroke={0} />
+  </a>
+  <a href={telHref} aria-label="חיוג" class="blob-btn" style="background: #B96F45">
+    <Icon name="Phone" size={22} />
+  </a>
+</div>
+
+{SHOW_STICKY_DESKTOP_BAR && (
+  <div class="only-desktop cta-bar transition-all duration-300 translate-y-full opacity-0 pointer-events-none" id="sticky-cta-bar">
+    <div class="max-w-[1180px] mx-auto px-8 py-3 flex items-center justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <BrandMark size={38} />
+        <div class="leading-tight">
+          <div class="font-bold text-ink text-[16px]">אני כאן בשבילך</div>
+          <div class="text-[12px] text-ink-mute">מוזמנים להתייעץ — בדיסקרטיות מלאה</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href={telHref} class="btn btn-ghost !py-2.5 !px-6 !text-[15px]"><Icon name="Phone" size={15} /> <span dir="ltr">{CONTACT.phone}</span></a>
+        <a href={waHref} target="_blank" rel="noreferrer" class="btn btn-primary !py-2.5 !px-6 !text-[15px]">{CTA_TEXT}</a>
+      </div>
+    </div>
+  </div>
+)}
+
+<script>
+  const bubble = document.getElementById('sticky-cta-bubble');
+  const bar = document.getElementById('sticky-cta-bar');
+
+  const shownClasses = ['opacity-100', 'translate-y-0'];
+  const hiddenClasses = ['opacity-0', 'translate-y-3', 'pointer-events-none'];
+  const barShownClasses = ['translate-y-0', 'opacity-100'];
+  const barHiddenClasses = ['translate-y-full', 'opacity-0', 'pointer-events-none'];
+
+  const onScroll = () => {
+    const shown = window.scrollY > 480;
+    if (bubble) {
+      bubble.classList.remove(...shownClasses, ...hiddenClasses);
+      bubble.classList.add(...(shown ? shownClasses : hiddenClasses));
+    }
+    if (bar) {
+      bar.classList.remove(...barShownClasses, ...barHiddenClasses);
+      bar.classList.add(...(shown ? barShownClasses : barHiddenClasses));
+    }
+  };
+
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

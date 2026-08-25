@@ -1,0 +1,45 @@
+---
+// Specialties — soft-icon cards. Ported from app.jsx:437-476.
+import Reveal from './Reveal.astro';
+import Icon from './Icon.astro';
+import SectionHead from './SectionHead.astro';
+import CTABand from './CTABand.astro';
+import { telHref } from '../data/site.js';
+
+const items = [
+  { icon: 'Compass', label: "משברי חיים", sub: ["תקיעות · בדידות", "אובדן · מעברים"] },
+  { icon: 'Wind', label: "חרדה ודיכאון", sub: ["מצוקה רגשית מתמשכת"] },
+  { icon: 'Sprout', label: "התמכרויות", sub: ["תהליכי גמילה מותאמים אישית", "ליווי בני המשפחה"] },
+  { icon: 'Hearts', label: "טראומה ויחסים", sub: ["משברים בזוגיות", "יחסי משפחה"] },
+];
+---
+
+<section class="relative py-20 md:py-28 bg-cream-2">
+  <div class="max-w-[1200px] mx-auto px-6 lg:px-10">
+    <Reveal>
+      <SectionHead label="תחומי טיפול">במה אוכל לעזור לכם?</SectionHead>
+    </Reveal>
+
+    <div class="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+      {items.map((it, i) => (
+        <Reveal delay={i % 4 * 90}>
+          <div class="card lift-hover h-full px-7 py-9 text-center">
+            <div class="mx-auto w-16 h-16 rounded-full grid place-items-center bg-sage-mist text-sage-deep">
+              <Icon name={it.icon} size={28} stroke={1.5} />
+            </div>
+            <h3 class="mt-5 font-bold text-ink text-[21px] md:text-[22px] leading-tight">{it.label}</h3>
+            <div class="mt-4 mx-auto w-9 h-px bg-line" />
+            <div class="mt-4 space-y-1 text-[15px] text-ink-soft leading-[1.8]">
+              {it.sub.map((s) => <div>{s}</div>)}
+            </div>
+          </div>
+        </Reveal>
+      ))}
+    </div>
+
+    <CTABand class="mt-14 md:mt-16" center
+      title="מתלבט/ת אם זה מתאים לך?"
+      btn="בואו נדבר בטלפון"
+      href={telHref} ext={false} />
+  </div>
+</section>

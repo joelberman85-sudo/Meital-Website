@@ -1,0 +1,64 @@
+---
+// Approach — heading + nature image + essay + sage quote band. Ported from app.jsx:481-540.
+import Reveal from './Reveal.astro';
+import SectionHead from './SectionHead.astro';
+import QuoteBand from './QuoteBand.astro';
+---
+
+<section id="approach" class="relative py-20 md:py-28">
+  <div class="max-w-[860px] mx-auto px-6 lg:px-10">
+    <Reveal>
+      <SectionHead label="הגישה הטיפולית">
+        מהי פסיכותרפיה אקזיסטנציאליסטית<br class="hidden md:block" /> ולמי זה מתאים?
+      </SectionHead>
+    </Reveal>
+  </div>
+
+  <Reveal>
+    <div class="max-w-[1040px] mx-auto px-6 lg:px-10 mt-12">
+      <div class="soft-img w-full aspect-[16/7] shadow-soft">
+        <img src="/images/approach.jpg" alt="" class="w-full h-full object-cover" />
+      </div>
+    </div>
+  </Reveal>
+
+  <div class="max-w-[760px] mx-auto px-6 lg:px-10">
+    <Reveal delay={120}>
+      <div class="mt-12 space-y-6 text-[16.5px] md:text-[18px] leading-[2] text-ink-soft">
+        <p>
+          פסיכותרפיה אקזיסטנציאליסטית (קיומית) היא גישה טיפולית, המאמינה כי טיפול
+          רגשי צריך להיות בגובה העיניים, ומחובר למציאות היום-יומית שלנו. הגישה מאמינה
+          כי החיים מהווים אתגר עבור כולנו, וכי כולנו חשופים לאתגרי הקיום — ומרגישים
+          תחושות של דכאון, בדידות, תקיעות וחרדה — וכי לכל אחד דרך התמודדות שונה.
+        </p>
+        <p>
+          הגישה מאמינה כי בבסיסו של הטיפול הרגשי נמצא הקשר האנושי בין המטפל למטופל.
+          קשר שבו המטפל מלווה את המטופל במסע אל תוך עצמו. מסע אשר עלול להיות לא קל,
+          אך המטופל אינו לבד בו.
+        </p>
+        <p>
+          המטופל יכול לחוות רגשות לא פשוטים, אך המטפל לצידו — צולל איתו לתחושות,
+          מחזק ומעודד, נותן עוד נקודות מבט. והכי חשוב, נמצא לצידו בקצב שלו.
+        </p>
+      </div>
+    </Reveal>
+  </div>
+
+  <QuoteBand class="my-14 md:my-20">
+    אני מאמינה שכשניתן לנו מרחב לדבר בחופשיות, ולבטא את רגשותינו — גם המאיימים
+    ביותר — אנחנו מרגישים הקלה ופורקן. אני יודעת שכשאנחנו לא מוצאים את המרחב
+    הזה, פעם אחר פעם, תחושת בדידות קשה יכולה להציף אותנו.
+  </QuoteBand>
+
+  <div class="max-w-[760px] mx-auto px-6 lg:px-10">
+    <Reveal delay={120}>
+      <div class="space-y-6 text-[16.5px] md:text-[18px] leading-[2] text-ink-soft">
+        <p>
+          פסיכותרפיה אקזיסטנציאליסטית מתאימה לכל מי שמרגיש תחושות חרדה, דכאון, תקיעות
+          או בדידות. לכל מי שמרגיש או מרגישה שאיפשהו במהלך שגרת החיים הכיוון נאבד,
+          והוא מחפש למצוא את הדרך חזרה — או מעוניין בדרך חדשה.
+        </p>
+      </div>
+    </Reveal>
+  </div>
+</section>

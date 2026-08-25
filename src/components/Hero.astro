@@ -1,0 +1,74 @@
+---
+// Hero — two columns: text + rounded image over organic sage shape
+// Ported from the Hero function in app.jsx:230-298.
+import Reveal from './Reveal.astro';
+import { waHref, CTA_TEXT, OPENING_QUOTE } from '../data/site.js';
+
+const quotes = {
+  frankl: {
+    text: "אפשר ליטול מאיתנו כמעט הכל, חוץ מדבר אחד: את החופש להחליט כיצד להגיב למצבי החיים שלנו.",
+    who: "ויקטור פראנקל"
+  },
+  yalom: {
+    text: "הקשר האנושי בין המטפל למטופל הוא ליבת הטיפול — מסע אל תוך עצמך, ואינך לבד בו.",
+    who: "אירווין יאלום"
+  }
+};
+const q = quotes[OPENING_QUOTE] || quotes.frankl;
+const ctaText = CTA_TEXT;
+---
+
+<section id="hero" class="relative overflow-hidden pt-[112px] md:pt-[128px] pb-20 md:pb-28">
+  <!-- soft ambient washes -->
+  <div class="absolute -z-0 top-10 -right-32 w-[460px] h-[460px] rounded-full opacity-60"
+  style="background: radial-gradient(closest-side, #E7EFE0, transparent 70%)"></div>
+  <div class="absolute -z-0 bottom-0 -left-24 w-[380px] h-[380px] rounded-full opacity-50"
+  style="background: radial-gradient(closest-side, #f3e2cd, transparent 70%)"></div>
+
+  <div class="relative max-w-[1200px] mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-12 md:gap-16 items-center" style="padding: 0px 55px 0px 40px">
+    <!-- text (right in RTL) -->
+    <div class="order-2 md:order-1">
+      <Reveal delay={40}>
+        <span class="pill-label" style="background-color: rgb(223, 232, 214); color: rgb(78, 63, 51); font-weight: 600">פסיכותרפיה קיומית · אקזיסטנציאליסטית</span>
+      </Reveal>
+      <Reveal delay={120}>
+        <h1 class="display-lg mt-6 text-[52px] sm:text-[68px] md:text-[80px]" style="height: 80px">מיטל עוז</h1>
+        <p class="mt-3 text-[18px] sm:text-[21px] text-sage-deep font-semibold tracking-[0.04em]" style="height: 31px">
+          פסיכותרפיסטית · קרימינולוגית <span dir="ltr">M.A</span>
+        </p>
+      </Reveal>
+      <Reveal delay={200}>
+        <div class="mt-7 space-y-1.5 text-[18px] sm:text-[20px] text-ink-soft">
+          <p style="height: 25px">טיפול במשברי החיים, תחושת תקיעות ובדידות.</p>
+          <p>טיפול בהתמכרויות.</p>
+        </div>
+      </Reveal>
+      <Reveal delay={290}>
+        <div class="mt-9 flex flex-wrap items-center gap-4">
+          <a href={waHref} target="_blank" rel="noreferrer" class="btn btn-primary" style="background-color: rgb(175, 99, 64)">{ctaText}</a>
+          <a href="#about" class="btn btn-ghost" style="background-color: rgba(251, 249, 243, 0.1); border-color: rgba(175, 99, 64, 0.29)">קצת עליי</a>
+        </div>
+      </Reveal>
+    </div>
+
+    <!-- image (left in RTL) over organic sage blob -->
+    <div class="order-1 md:order-2 relative">
+      <Reveal delay={160}>
+        <div class="relative mx-auto w-[300px] sm:w-[380px] md:w-full max-w-[460px]">
+          <!-- sage organic shape -->
+          <div class="blob absolute -inset-5 md:-inset-7 -z-10 bg-sage/55"></div>
+          <div class="blob absolute -bottom-8 -left-6 w-32 h-32 -z-10 bg-peach/50" style="animation-delay: -6s"></div>
+          <!-- rounded portrait -->
+          <div class="soft-img aspect-[4/5] shadow-lift" style="width: 445px">
+            <img src="/images/maytal.jpg" alt="מיטל עוז" class="w-full h-full object-cover" style="width: 445px; height: 560px" />
+          </div>
+          <!-- quote card overlay -->
+          <div class="absolute -bottom-7 right-4 md:-right-8 max-w-[270px] card !rounded-3xl px-5 py-4 shadow-lift" style="border-color: rgb(175, 99, 64); background-color: rgb(175, 99, 64)">
+            <p class="text-[14.5px] leading-[1.7] text-ink italic" style="color: rgb(255, 254, 254); font-size: 15px">״{q.text}״</p>
+            <div class="mt-2 text-[12px] tracking-[0.12em] text-sage-deep font-semibold" style="color: rgb(247, 240, 230)">— {q.who}</div>
+          </div>
+        </div>
+      </Reveal>
+    </div>
+  </div>
+</section>

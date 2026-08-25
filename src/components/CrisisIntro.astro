@@ -1,0 +1,48 @@
+---
+// Crisis intro — centered text on soft card. Ported from app.jsx:303-344.
+import Reveal from './Reveal.astro';
+import SectionHead from './SectionHead.astro';
+import CTABand from './CTABand.astro';
+---
+
+<section id="crisis" class="relative py-20 md:py-28">
+  <div class="max-w-[820px] mx-auto px-6">
+    <Reveal>
+      <SectionHead label="מתי לפנות">
+        מהו בכלל משבר ומתי כדאי לפנות לטיפול?
+      </SectionHead>
+      <p class="mt-7 text-center text-[20px] md:text-[24px] text-cta font-semibold italic leading-snug">
+        אין סיבה לא נכונה או זמן לא נכון לפנות לטיפול.
+      </p>
+    </Reveal>
+
+    <Reveal delay={120}>
+      <div class="mt-10 space-y-6 text-[16.5px] md:text-[18px] text-ink-soft leading-[2] text-center">
+        <p>
+          משבר יכול להיות תחושה או הרגשה שזרים לכם: שינוי שהתרחש בחיים, בזוגיות,
+          במשפחה, בקריירה. צומת שאתם מרגישים תקועים בה, שגרה שוחקת, או הרגל שלא עושה
+          לכם טוב.
+        </p>
+        <p>
+          כל תחושת מצוקה או חוסר אונים יכולה להיות סיבה לפנות לסיוע — בין אם אנחנו
+          יודעים מאיפה היא מגיעה ובין אם לא. לעיתים גם אירועים שנראים לנו שוליים,
+          יכולים להיות סיבה לפנות לטיפול.
+        </p>
+        <p>
+          טיפול נכון ומותאם אישית מספק לנו כלים להתבוננות פנימית מיטיבה, מאפשר למצוא
+          את דרכי ההתמודדות הנכונות עבורנו — ואף לצמוח מתוך הקשיים שלנו.
+        </p>
+      </div>
+    </Reveal>
+  </div>
+
+  <div class="mt-14 md:mt-16">
+    <CTABand
+      title="מרגיש/ה שזה מדבר אליך?"
+      sub="אני כאן כדי להקשיב לסיפור שלך."
+      btn="שלחו לי הודעה"
+      href="#contact"
+      ext={false}
+    />
+  </div>
+</section>
