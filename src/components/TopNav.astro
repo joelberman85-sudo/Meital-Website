@@ -1,0 +1,125 @@
+---
+// Top nav — ported verbatim from the `TopNav` function in app.jsx:151-225.
+import Icon from './Icon.astro';
+import BrandMark from './BrandMark.astro';
+import { CONTACT, waHref, telHref, CTA_TEXT } from '../data/site.js';
+
+const links = [
+  { href: "#about", label: "אודות" },
+  { href: "#approach", label: "הגישה הטיפולית" },
+  { href: "#thoughts", label: "מחשבות על..." },
+  { href: "#contact", label: "יצירת קשר" }
+];
+---
+
+<header id="top-nav" class="fixed top-0 inset-x-0 z-40 transition-all duration-300 bg-cream/80 backdrop-blur-sm">
+  <div class="max-w-[1200px] mx-auto px-6 lg:px-10 h-[74px] flex items-center justify-between">
+    <a href="#hero" class="flex items-center gap-3" aria-label="מיטל עוז">
+      <BrandMark size={38} color="#7D8F6B" />
+      <span class="leading-tight">
+        <span class="block text-[19px] font-bold text-ink" style="color: rgb(175, 99, 64)">מיטל עוז</span>
+        <span class="block text-[10.5px] tracking-[0.18em] text-ink-mute font-semibold">פסיכותרפיסטית · M.A</span>
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-9 text-[15.5px] text-ink-soft">
+      {links.map((l) => (
+        <a href={l.href}
+          class="nav-link transition font-semibold hover:text-ink"
+          data-nav-link
+          data-section={l.href.slice(1)}>
+          {l.label}
+        </a>
+      ))}
+    </nav>
+
+    <a href={waHref} target="_blank" rel="noreferrer"
+      class="hidden md:inline-flex btn btn-primary !py-2.5 !px-7 !text-[15px]" style="background-color: rgb(163, 106, 72)">
+      {CTA_TEXT}
+    </a>
+
+    <button id="mobile-toggle" class="md:hidden p-2 -mr-2 text-ink" aria-label="תפריט" aria-expanded="false">
+      <Icon name="Menu" class="mobile-icon-menu" />
+      <Icon name="X" class="mobile-icon-x hidden" />
+    </button>
+  </div>
+
+  <div id="mobile-drawer" class="md:hidden overflow-hidden transition-[max-height] duration-300 bg-cream border-t border-line max-h-0">
+    <nav class="flex flex-col px-6 py-2">
+      {links.map((l) => (
+        <a href={l.href} data-drawer-link
+          class="py-3.5 border-b border-line last:border-0 text-ink-soft font-medium">
+          {l.label}
+        </a>
+      ))}
+      <a href={telHref} class="py-3.5 text-cta flex items-center gap-2 font-semibold">
+        <Icon name="Phone" size={15} /><span dir="ltr">{CONTACT.phone}</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('top-nav');
+  const mobileToggle = document.getElementById('mobile-toggle');
+  const mobileDrawer = document.getElementById('mobile-drawer');
+  const iconMenu = document.querySelector('.mobile-icon-menu');
+  const iconX = document.querySelector('.mobile-icon-x');
+  const navLinks = document.querySelectorAll('[data-nav-link]');
+  const drawerLinks = document.querySelectorAll('[data-drawer-link]');
+
+  let mobileOpen = false;
+
+  const NOT_SCROLLED = ['bg-cream/80', 'backdrop-blur-sm'];
+  const SCROLLED = ['bg-cream/95', 'backdrop-blur-md', 'border-b', 'border-line', 'shadow-soft'];
+
+  function setMobileOpen(open) {
+    mobileOpen = open;
+    if (mobileDrawer) {
+      mobileDrawer.classList.toggle('max-h-96', mobileOpen);
+      mobileDrawer.classList.toggle('max-h-0', !mobileOpen);
+    }
+    if (iconMenu) iconMenu.classList.toggle('hidden', mobileOpen);
+    if (iconX) iconX.classList.toggle('hidden', !mobileOpen);
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', String(mobileOpen));
+  }
+
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', () => setMobileOpen(!mobileOpen));
+  }
+
+  drawerLinks.forEach((link) => {
+    link.addEventListener('click', () => setMobileOpen(false));
+  });
+
+  function onScroll() {
+    const scrolled = window.scrollY > 40;
+    if (header) {
+      if (scrolled) {
+        header.classList.remove(...NOT_SCROLLED);
+        header.classList.add(...SCROLLED);
+      } else {
+        header.classList.remove(...SCROLLED);
+        header.classList.add(...NOT_SCROLLED);
+      }
+    }
+
+    const ids = ["about", "approach", "thoughts", "contact"];
+    const y = window.scrollY + 160;
+    let cur = "hero";
+    for (const id of ids) {
+      const el = document.getElementById(id);
+      if (el && el.offsetTop <= y) cur = id;
+    }
+
+    navLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-section') === cur;
+      link.classList.toggle('active', isActive);
+      link.classList.toggle('text-cta', isActive);
+      link.classList.toggle('hover:text-ink', !isActive);
+    });
+  }
+
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+</script>

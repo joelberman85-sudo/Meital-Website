@@ -1,0 +1,181 @@
+---
+// Contact — white rounded card: form (left) + details with green icons (right)
+// Ported from ContactForm in app.jsx:717-812.
+// Bug fix: the original onSubmit validated, flipped to a success state, and discarded
+// the lead — nothing was ever sent. This version wires the form to Netlify Forms via
+// an AJAX fetch so the inline success-panel UX is preserved.
+import Reveal from './Reveal.astro';
+import Icon from './Icon.astro';
+import { CONTACT, waHref, telHref } from '../data/site.js';
+
+const details = [
+  { href: telHref, icon: 'Phone', t: CONTACT.phone, ltr: true },
+  { href: waHref, ext: true, icon: 'Whatsapp', stroke: 0, t: 'שלחו הודעה בוואטסאפ' },
+  { href: `mailto:${CONTACT.email}`, icon: 'Mail', t: CONTACT.email },
+  { href: '#', icon: 'Pin', t: 'קרליבך, תל-אביב · ומפגשי אונליין' },
+];
+---
+
+<section id="contact" class="relative py-20 md:py-28">
+  <div class="max-w-[1160px] mx-auto px-6 lg:px-10">
+    <div class="card !rounded-[34px] p-7 md:p-12 grid md:grid-cols-12 gap-10 md:gap-14 items-start">
+      <!-- details — right (RTL first) -->
+      <div class="md:col-span-5 order-1 text-right">
+        <Reveal>
+          <h2 class="display text-[30px] md:text-[40px] leading-[1.1]">מחכה לשמוע ממך</h2>
+          <p class="mt-5 text-[16px] text-ink-soft leading-[1.95]">
+            כל פנייה מתקבלת בחום ובדיסקרטיות מלאה. אפשר להשאיר פרטים כאן, או פשוט להרים
+            טלפון לשיחה קצרה כדי להכיר ולבדוק התאמה.
+          </p>
+
+          <div class="mt-9 space-y-4">
+            {details.map((r) => (
+              <a href={r.href} {...(r.ext ? { target: '_blank', rel: 'noreferrer' } : {})}
+                class="group flex items-center gap-3.5">
+                <span class="w-11 h-11 rounded-full bg-sage-mist text-sage-deep grid place-items-center shrink-0 group-hover:bg-sage-deep group-hover:text-white transition">
+                  <Icon name={r.icon} size={17} stroke={r.stroke} />
+                </span>
+                <span class="text-[15.5px] text-ink font-medium" {...(r.ltr ? { dir: 'ltr' } : {})}>{r.t}</span>
+              </a>
+            ))}
+          </div>
+        </Reveal>
+      </div>
+
+      <!-- form — left -->
+      <div class="md:col-span-7 order-2">
+        <Reveal>
+          <form id="contact-form" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate class="space-y-4">
+            <input type="hidden" name="form-name" value="contact" />
+            <p class="hidden"><label>Don't fill this out if you're human: <input name="bot-field" /></label></p>
+
+            <div>
+              <input id="cf-name" name="name" class="field !rounded-2xl !py-4 !bg-sand/50" type="text" placeholder="שם מלא" />
+              <span id="cf-name-error" class="hidden block text-[12px] text-cta mt-1.5">אשמח לדעת איך לפנות אליך</span>
+            </div>
+            <div>
+              <input id="cf-phone" name="phone" class="field !rounded-2xl !py-4 !bg-sand/50" type="tel" dir="rtl" placeholder="טלפון" />
+              <span id="cf-phone-error" class="hidden block text-[12px] text-cta mt-1.5">מספר טלפון לא נראה תקין</span>
+            </div>
+            <div>
+              <input id="cf-email" name="email" class="field !rounded-2xl !py-4 !bg-sand/50" type="email" placeholder="דואר אלקטרוני" />
+            </div>
+            <div>
+              <textarea id="cf-message" name="message" class="field !rounded-2xl !bg-sand/50 min-h-[140px]" rows="5" placeholder="איך אוכל לעזור?"></textarea>
+              <span id="cf-message-error" class="hidden block text-[12px] text-cta mt-1.5">כתבו משפט קצר ואחזור אליכם</span>
+            </div>
+            <button id="cf-submit" type="submit" class="btn btn-primary w-full !rounded-2xl">שליחת פנייה</button>
+            <span id="cf-submit-error" class="hidden block text-[13px] text-cta mt-2">משהו השתבש בשליחה. אפשר להתקשר 052-4250242 או לכתוב לי בוואטסאפ.</span>
+          </form>
+
+          <div id="contact-success" class="hidden py-8 text-center">
+            <div class="w-16 h-16 rounded-full bg-sage-deep text-white grid place-items-center mb-6 mx-auto">
+              <Icon name="Check" size={28} stroke={2} />
+            </div>
+            <h3 class="font-bold text-ink text-[28px] mb-2">תודה <span id="cf-success-name"></span></h3>
+            <p class="text-[17px] text-ink-soft leading-[1.8] max-w-md mx-auto">
+              קיבלתי את ההודעה. אחזור אליכם בהקדם. בינתיים תנו לעצמכם את הזמן, נשמה.
+            </p>
+            <button id="cf-reset" type="button" class="btn btn-ghost mt-6">שליחת פנייה נוספת</button>
+          </div>
+        </Reveal>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const successPanel = document.getElementById('contact-success');
+  const submitBtn = document.getElementById('cf-submit');
+  const submitError = document.getElementById('cf-submit-error');
+
+  const nameInput = document.getElementById('cf-name');
+  const phoneInput = document.getElementById('cf-phone');
+  const emailInput = document.getElementById('cf-email');
+  const messageInput = document.getElementById('cf-message');
+
+  const nameError = document.getElementById('cf-name-error');
+  const phoneError = document.getElementById('cf-phone-error');
+  const messageError = document.getElementById('cf-message-error');
+
+  const successName = document.getElementById('cf-success-name');
+
+  function setFieldState(input, errorEl, message) {
+    if (!input || !errorEl) return;
+    if (message) {
+      input.classList.add('invalid');
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+    } else {
+      input.classList.remove('invalid');
+      errorEl.classList.add('hidden');
+    }
+  }
+
+  function validate() {
+    const nameVal = nameInput ? nameInput.value : '';
+    const phoneVal = phoneInput ? phoneInput.value : '';
+    const messageVal = messageInput ? messageInput.value : '';
+
+    const errors = {};
+    if (!nameVal.trim() || nameVal.trim().length < 2) errors.name = 'אשמח לדעת איך לפנות אליך';
+    if (!/^[\d\s+\-()]{8,}$/.test(phoneVal.trim())) errors.phone = 'מספר טלפון לא נראה תקין';
+    if (messageVal.trim().length < 5) errors.message = 'כתבו משפט קצר ואחזור אליכם';
+
+    setFieldState(nameInput, nameError, errors.name || null);
+    setFieldState(phoneInput, phoneError, errors.phone || null);
+    setFieldState(messageInput, messageError, errors.message || null);
+
+    return errors;
+  }
+
+  if (form) {
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      const errors = validate();
+      if (submitError) submitError.classList.add('hidden');
+
+      if (Object.keys(errors).length > 0) return;
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(form)).toString(),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Bad response');
+          const firstName = nameInput ? nameInput.value.trim().split(' ')[0] : '';
+          if (successName) successName.textContent = firstName;
+          form.classList.add('hidden');
+          if (successPanel) successPanel.classList.remove('hidden');
+        })
+        .catch(() => {
+          if (submitError) submitError.classList.remove('hidden');
+        })
+        .finally(() => {
+          if (submitBtn) submitBtn.disabled = false;
+        });
+    });
+  }
+
+  const resetBtn = document.getElementById('cf-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (nameInput) nameInput.value = '';
+      if (phoneInput) phoneInput.value = '';
+      if (emailInput) emailInput.value = '';
+      if (messageInput) messageInput.value = '';
+
+      setFieldState(nameInput, nameError, null);
+      setFieldState(phoneInput, phoneError, null);
+      setFieldState(messageInput, messageError, null);
+      if (submitError) submitError.classList.add('hidden');
+
+      if (successPanel) successPanel.classList.add('hidden');
+      if (form) form.classList.remove('hidden');
+    });
+  }
+</script>

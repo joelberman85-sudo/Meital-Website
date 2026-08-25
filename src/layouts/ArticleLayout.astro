@@ -1,0 +1,168 @@
+---
+// Shared shell for the four essays and the three guides.
+// Typography follows the modal reader the essays used to open in (app.jsx:672-706).
+import BaseLayout from './BaseLayout.astro';
+import Reveal from '../components/Reveal.astro';
+import CTABand from '../components/CTABand.astro';
+import Icon from '../components/Icon.astro';
+import { waHref } from '../data/site.js';
+
+const {
+  title,
+  seoTitle,
+  description,
+  path,
+  kicker,
+  lead,
+  image,
+  imageAlt = '',
+  sources,
+  extra,
+} = Astro.props;
+---
+
+<BaseLayout
+  title={seoTitle || title}
+  description={description}
+  path={path}
+  ogType="article"
+  ogImage={image || '/images/maytal.jpg'}
+>
+  <article class="relative pt-[112px] md:pt-[128px] pb-20 md:pb-28">
+    <div class="max-w-[860px] mx-auto px-6 lg:px-10">
+      <Reveal>
+        <a
+          href="/#thoughts"
+          class="group inline-flex items-center gap-2.5 text-sage-deep font-semibold text-[15px] hover:text-cta transition"
+        >
+          <Icon name="ArrowL" size={15} />
+          <span>חזרה לכל המחשבות</span>
+        </a>
+      </Reveal>
+
+      {
+        image && (
+          <Reveal delay={80}>
+            <div class="soft-img aspect-[2/1] shadow-lift mt-7">
+              <img src={image} alt={imageAlt} class="w-full h-full object-cover" />
+            </div>
+          </Reveal>
+        )
+      }
+
+      <Reveal delay={120}>
+        {kicker && <div class="eyebrow mt-10">{kicker}</div>}
+        <h1 class="display-lg mt-4 text-[32px] sm:text-[42px] md:text-[52px]">{title}</h1>
+        {
+          lead && (
+            <p class="mt-6 text-[19px] md:text-[21px] leading-[1.6] text-cta italic font-medium pr-5 border-r-[3px] border-sage">
+              {lead}
+            </p>
+          )
+        }
+      </Reveal>
+
+      <Reveal delay={160}>
+        <div class="article-body mt-8 text-[17px] leading-[1.95] text-ink-soft">
+          <slot />
+        </div>
+      </Reveal>
+
+      {
+        sources && sources.length > 0 && (
+          <Reveal delay={160}>
+            <div class="mt-10 pt-6 border-t border-line">
+              <div class="eyebrow mb-4">מקורות</div>
+              <ul class="space-y-1.5 text-[14px] text-ink-mute leading-[1.7]">
+                {sources.map((s) => (
+                  <li>{s}</li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        )
+      }
+
+      {
+        extra && (
+          <Reveal delay={160}>
+            <a
+              href={extra.href}
+              target="_blank"
+              rel="noreferrer"
+              class="mt-8 inline-flex items-center gap-3 border border-sage rounded-full px-5 py-3 text-sage-deep hover:bg-sage hover:text-white transition"
+            >
+              <span class="text-[14px]">{extra.label}</span>
+              <Icon name="ArrowL" size={14} />
+            </a>
+          </Reveal>
+        )
+      }
+    </div>
+
+    <CTABand
+      class="mt-16"
+      title="אני כאן בשבילך"
+      sub="מוזמנים להתייעץ — בלי התחייבות, בקצב שלכם."
+      btn="בואו נתחיל בשיחה"
+      href={waHref}
+    />
+  </article>
+</BaseLayout>
+
+<style>
+  /* Markdown-rendered body. Scoped styles do not reach <slot /> content, so these
+     are :global, namespaced under .article-body. */
+  .article-body :global(p) {
+    margin-top: 1.25rem;
+  }
+  .article-body :global(p:first-child) {
+    margin-top: 0;
+  }
+  .article-body :global(h2) {
+    font-size: 26px;
+    line-height: 1.25;
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .article-body :global(h3) {
+    font-size: 21px;
+    line-height: 1.3;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .article-body :global(ul),
+  .article-body :global(ol) {
+    margin-top: 1.25rem;
+    padding-right: 1.4rem;
+  }
+  .article-body :global(ul) {
+    list-style: disc;
+  }
+  .article-body :global(ol) {
+    list-style: decimal;
+  }
+  .article-body :global(li) {
+    margin-top: 0.4rem;
+  }
+  .article-body :global(li::marker) {
+    color: var(--sage-deep);
+  }
+  .article-body :global(strong) {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .article-body :global(a) {
+    color: var(--cta);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .article-body :global(a:hover) {
+    color: var(--cta-deep);
+  }
+  @media (min-width: 768px) {
+    .article-body :global(h2) {
+      font-size: 30px;
+    }
+  }
+</style>

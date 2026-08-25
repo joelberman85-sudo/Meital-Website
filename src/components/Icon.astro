@@ -1,0 +1,46 @@
+---
+// Inline-SVG icon set — ported verbatim from the `I` map in app.jsx.
+// Usage: <Icon name="Phone" size={17} />  ·  <Icon name="Whatsapp" size={18} stroke={0} />
+const PATHS = {
+  Phone: '<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z" />',
+  Whatsapp:
+    '<path d="M20.52 3.48A11.78 11.78 0 0 0 12.02 0C5.5 0 .2 5.3.2 11.82c0 2.08.55 4.11 1.6 5.9L0 24l6.45-1.7a11.78 11.78 0 0 0 5.57 1.42h.01c6.52 0 11.82-5.3 11.82-11.82a11.74 11.74 0 0 0-3.33-8.42Z" fill="currentColor" stroke="none" />' +
+    '<path d="M17.45 14.4c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.6.13-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.13-1.14-.42-2.17-1.34-.8-.71-1.34-1.59-1.5-1.86-.16-.27-.02-.41.12-.54.12-.12.27-.32.4-.48.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.48-.07-.13-.6-1.45-.82-1.99-.22-.52-.44-.45-.6-.46l-.51-.01c-.18 0-.48.07-.73.34-.25.27-.95.93-.95 2.27 0 1.34.97 2.63 1.11 2.82.13.18 1.92 2.94 4.66 4.12.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.6-.65 1.83-1.28.23-.63.23-1.17.16-1.28-.07-.11-.25-.18-.52-.32Z" fill="#fff" stroke="none" />',
+  Facebook:
+    '<path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.77l-.44 2.89h-2.33v6.99A10 10 0 0 0 22 12Z" fill="currentColor" stroke="none" />',
+  Instagram:
+    '<rect x="2" y="2" width="20" height="20" rx="5.5" /><circle cx="12" cy="12" r="4.2" /><circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />',
+  Mail: '<rect x="2" y="4" width="20" height="16" rx="3" /><path d="m22 6-10 7L2 6" />',
+  ArrowL: '<path d="M19 12H5M12 19l-7-7 7-7" />',
+  Check: '<path d="M20 6 9 17l-5-5" />',
+  Menu: '<path d="M4 7h16M4 12h16M4 17h16" />',
+  X: '<path d="M18 6 6 18M6 6l12 12" />',
+  Pin: '<path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0Z" /><circle cx="12" cy="10" r="3" />',
+  Tv: '<rect x="2" y="7" width="20" height="13" rx="2" /><path d="m17 2-5 5-5-5" />',
+  Leaf: '<path d="M11 20A7 7 0 0 1 4 13c0-5 6-8 14-9-1 8-4 14-9 14-1.6 0-3-.7-4-1.8M2 22c4-5 8-9 13-13" />',
+  Chevron: '<path d="m6 9 6 6 6-6" />',
+  // soft specialty icons
+  Compass: '<circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" />',
+  Wind: '<path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m13.7-8.3A2.5 2.5 0 1 1 17.5 12H2" />',
+  Sprout: '<path d="M7 20h10M12 20V10" /><path d="M12 10C12 6 9 4 5 4c0 4 3 6 7 6Z" /><path d="M12 12c0-3 2.5-5 6-5 0 3.5-2.5 5-6 5Z" />',
+  Hearts: '<path d="M12 21s-7-4.6-9.3-9A4.6 4.6 0 0 1 12 7.5 4.6 4.6 0 0 1 21.3 12C19 16.4 12 21 12 21Z" />',
+};
+
+const { name, size = 22, stroke = 1.6, class: className = '' } = Astro.props;
+const inner = PATHS[name];
+if (!inner) throw new Error(`Icon: unknown name "${name}"`);
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={stroke}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden="true"
+  set:html={inner}
+/>

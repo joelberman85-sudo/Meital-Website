@@ -1,0 +1,20 @@
+---
+// Centered section heading + sage pill label. Ported from app.jsx:118-122.
+const { label, class: className = '' } = Astro.props;
+---
+
+<div class={`text-center ${className}`}>
+  {
+    label && (
+      <div class="flex justify-center mb-5">
+        <span
+          class="pill-label"
+          style="background-color: rgb(231, 236, 222); color: rgb(79, 59, 50); font-weight: 600;"
+        >
+          {label}
+        </span>
+      </div>
+    )
+  }
+  <h2 class="display text-[34px] sm:text-[44px] md:text-[52px]"><slot /></h2>
+</div>

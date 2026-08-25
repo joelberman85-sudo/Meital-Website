@@ -1,0 +1,154 @@
+---
+import '../styles/global.css';
+import TopNav from '../components/TopNav.astro';
+import Footer from '../components/Footer.astro';
+import StickyCTA from '../components/StickyCTA.astro';
+import { CONTACT, SITE_URL } from '../data/site.js';
+
+const {
+  title,
+  description,
+  // Canonical path as it is actually served (extension-less), e.g. '/' or '/adhd-emotional-therapy'.
+  path,
+  ogType = 'website',
+  ogImage = '/images/maytal.jpg',
+} = Astro.props;
+
+const canonical = new URL(path, SITE_URL).href;
+const ogImageUrl = new URL(ogImage, SITE_URL).href;
+
+// Business markup. Restored after commit 7d8bfd9 dropped it; the version in d5efd73
+// was a bare LocalBusiness with no contact details, and was corrupted inside <title>.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ProfessionalService',
+      '@id': `${SITE_URL}/#practice`,
+      name: 'מיטל עוז — פסיכותרפיה וקרימינולוגיה',
+      description:
+        'מיטל עוז, פסיכותרפיסטית וקרימינולוגית M.A. גישה קיומית-אקזיסטנציאליסטית לטיפול במשברי חיים, חרדה, בדידות, התמכרויות וטראומה.',
+      url: SITE_URL,
+      image: `${SITE_URL}/images/maytal.jpg`,
+      telephone: `+${CONTACT.phoneRaw}`,
+      email: CONTACT.email,
+      priceRange: '$$',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'קרליבך',
+        addressLocality: 'תל אביב',
+        addressRegion: 'מרכז',
+        addressCountry: 'IL',
+      },
+      areaServed: [
+        { '@type': 'City', name: 'תל אביב' },
+        { '@type': 'Country', name: 'ישראל' },
+      ],
+      serviceType: ['פסיכותרפיה', 'קרימינולוגיה', 'טיפול אקזיסטנציאליסטי', 'טיפול בהתמכרויות'],
+      availableChannel: [
+        { '@type': 'ServiceChannel', serviceType: 'פגישה פנים אל פנים' },
+        { '@type': 'ServiceChannel', serviceType: 'פגישת זום', availableLanguage: 'he' },
+      ],
+      sameAs: [CONTACT.tvUrl],
+      inLanguage: 'he',
+      provider: { '@id': `${SITE_URL}/#maytal` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${SITE_URL}/#maytal`,
+      name: 'מיטל עוז',
+      givenName: 'מיטל',
+      familyName: 'עוז',
+      jobTitle: 'פסיכותרפיסטית וקרימינולוגית M.A.',
+      url: SITE_URL,
+      image: `${SITE_URL}/images/maytal.jpg`,
+      telephone: `+${CONTACT.phoneRaw}`,
+      email: CONTACT.email,
+      knowsLanguage: 'he',
+      worksFor: { '@id': `${SITE_URL}/#practice` },
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'קרליבך',
+        addressLocality: 'תל אביב',
+        addressCountry: 'IL',
+      },
+      sameAs: [CONTACT.tvUrl],
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="מיטל עוז · פסיכותרפיסטית M.A" />
+    <meta property="og:locale" content="he_IL" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700;800&family=Noto+Sans+Hebrew:wght@400;500;600;700;800&family=Alef:wght@400;700&family=Frank+Ruhl+Libre:wght@400;500;700&display=swap"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <slot name="head" />
+  </head>
+
+  <body style="background-color:#FAF5EE">
+    <div class="relative">
+      <TopNav />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+      <StickyCTA />
+    </div>
+
+    <script>
+      // Scroll reveal — mirrors the IntersectionObserver in the old <Reveal> component.
+      // Elements ship in the ".show" state so they stay visible without JS.
+      (() => {
+        const els = document.querySelectorAll('.fade-in');
+        if (!els.length) return;
+        const reduce =
+          window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce || !('IntersectionObserver' in window)) return;
+
+        const obs = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                e.target.classList.remove('pending');
+                e.target.classList.add('show');
+                obs.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.12, rootMargin: '0px 0px -7% 0px' }
+        );
+
+        els.forEach((el) => {
+          el.classList.remove('show');
+          el.classList.add('pending');
+          obs.observe(el);
+        });
+      })();
+    </script>
+  </body>
+</html>
