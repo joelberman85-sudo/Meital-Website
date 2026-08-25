@@ -1,0 +1,12 @@
+---
+// Scroll reveal — gentle fade + rise. Ported from the <Reveal> component in app.jsx:95-115.
+// Renders in the "show" state so the content is visible with JavaScript disabled;
+// the observer in BaseLayout flips it to "pending" and back on intersection.
+const { as: As = 'div', class: className = '', delay, style, ...rest } = Astro.props;
+const mergedStyle = delay != null ? { transitionDelay: `${delay}ms`, ...(style || {}) } : style;
+const Tag = As;
+---
+
+<Tag {...rest} style={mergedStyle} class={`fade-in show ${className}`}>
+  <slot />
+</Tag>

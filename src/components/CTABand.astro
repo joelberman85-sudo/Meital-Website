@@ -1,0 +1,38 @@
+---
+// Call-to-action band — sage rounded box: message (right) + caramel button (left).
+// Ported from app.jsx:134-146.
+import Reveal from './Reveal.astro';
+import { waHref } from '../data/site.js';
+
+const {
+  title,
+  sub,
+  btn,
+  href = waHref,
+  ext = true,
+  center = false,
+  class: className = '',
+} = Astro.props;
+
+const extAttrs = ext ? { target: '_blank', rel: 'noreferrer' } : {};
+---
+
+<Reveal class={className}>
+  <div class="max-w-[1040px] mx-auto px-6 lg:px-10">
+    <div
+      class:list={[
+        'bg-sage-mist rounded-[28px] px-7 py-7 md:px-11 md:py-8 flex flex-col gap-5',
+        center
+          ? 'items-center text-center'
+          : 'sm:flex-row sm:items-center sm:justify-between text-center sm:text-right',
+      ]}
+      style="background-color: rgb(232, 239, 224);"
+    >
+      <div>
+        <div class="text-ink font-bold text-[20px] md:text-[23px] leading-snug">{title}</div>
+        {sub && <div class="mt-1.5 text-ink-soft text-[15px]">{sub}</div>}
+      </div>
+      <a href={href} {...extAttrs} class="btn btn-primary shrink-0">{btn}</a>
+    </div>
+  </div>
+</Reveal>

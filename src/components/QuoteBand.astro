@@ -1,0 +1,18 @@
+---
+// Minimal quote band — sage background. Ported from app.jsx:125-131.
+import Reveal from './Reveal.astro';
+const { cite, class: className = '', style } = Astro.props;
+---
+
+<Reveal as="section" style={style} class={`quote-band py-16 md:py-24 px-6 ${className}`}>
+  <p
+    class="text-sage-deep text-center text-[22px] sm:text-[27px] md:text-[32px] leading-[1.55] max-w-[900px] mx-auto font-medium"
+  >
+    <slot />
+  </p>
+  {
+    cite && (
+      <div class="mt-5 text-center text-sage-deep/80 text-[16px] md:text-[18px]">{cite}</div>
+    )
+  }
+</Reveal>
