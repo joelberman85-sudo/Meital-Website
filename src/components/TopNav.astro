@@ -5,16 +5,16 @@ import BrandMark from './BrandMark.astro';
 import { CONTACT, waHref, telHref, CTA_TEXT } from '../data/site.js';
 
 const links = [
-  { href: "#about", label: "אודות" },
-  { href: "#approach", label: "הגישה הטיפולית" },
-  { href: "#thoughts", label: "מחשבות על..." },
-  { href: "#contact", label: "יצירת קשר" }
+  { href: "/#about", label: "אודות" },
+  { href: "/#approach", label: "הגישה הטיפולית" },
+  { href: "/#thoughts", label: "מחשבות על..." },
+  { href: "/#contact", label: "יצירת קשר" }
 ];
 ---
 
 <header id="top-nav" class="fixed top-0 inset-x-0 z-40 transition-all duration-300 bg-cream/80 backdrop-blur-sm">
   <div class="max-w-[1200px] mx-auto px-6 lg:px-10 h-[74px] flex items-center justify-between">
-    <a href="#hero" class="flex items-center gap-3" aria-label="מיטל עוז">
+    <a href="/" class="flex items-center gap-3" aria-label="מיטל עוז">
       <BrandMark size={38} color="#7D8F6B" />
       <span class="leading-tight">
         <span class="block text-[19px] font-bold text-ink" style="color: rgb(175, 99, 64)">מיטל עוז</span>
@@ -27,7 +27,7 @@ const links = [
         <a href={l.href}
           class="nav-link transition font-semibold hover:text-ink"
           data-nav-link
-          data-section={l.href.slice(1)}>
+          data-section={l.href.split('#')[1]}>
           {l.label}
         </a>
       ))}

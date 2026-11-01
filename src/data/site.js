@@ -3,11 +3,9 @@ export const CONTACT = {
   phone: '052-4250242',
   phoneRaw: '972524250242',
   email: 'maytaloz@gmail.com',
-  // NOTE: placeholder in the original app — points at facebook.com's front page.
-  facebookUrl: 'https://www.facebook.com/',
+  // Maytal's own Facebook page (by page id, so it survives a rename).
+  facebookUrl: 'https://www.facebook.com/100057450467949',
   facebookLabel: 'מיטל עוז, M.A — פסיכותרפיסטית',
-  // NOTE: placeholder in the original app — points at instagram.com's front page.
-  instagramUrl: 'https://instagram.com',
   whatsappMsg: 'היי מיטל, אשמח להתייעץ איתך',
   location: 'קליניקה במרכז תל אביב · מפגשים פרונטליים ובזום',
   tvUrl: 'https://13tv.co.il/item/special/recommended/health-2/meitaloz-902508561/',
