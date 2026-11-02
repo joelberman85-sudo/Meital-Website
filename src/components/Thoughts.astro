@@ -8,7 +8,6 @@ import Icon from './Icon.astro';
 import { waHref } from '../data/site.js';
 
 const articles = (await getCollection('articles')).sort((a, b) => a.data.order - b.data.order);
-const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.data.order);
 ---
 
 <section id="thoughts" class="relative py-20 md:py-28 bg-cream-2">
@@ -90,31 +89,6 @@ const guides = (await getCollection('guides')).sort((a, b) => a.data.order - b.d
         ))
       }
     </div>
-
-    <!-- Guides. Previously orphan pages at the repo root that nothing linked to. -->
-    <Reveal class="mt-16">
-      <div class="flex justify-center">
-        <span class="pill-label" style="background-color: rgb(231, 236, 222);">מדריכים</span>
-      </div>
-      <div class="mt-7 grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
-        {
-          guides.map((g) => (
-            <a
-              href={`/${g.id}`}
-              class="card lift-hover group h-full px-7 py-7 flex flex-col text-right"
-            >
-              <h3 class="font-bold text-ink text-[19px] md:text-[20px] leading-snug">
-                {g.data.title}
-              </h3>
-              <p class="mt-3 text-[15px] text-ink-soft leading-[1.8] grow">{g.data.description}</p>
-              <span class="mt-5 inline-flex items-center gap-2 text-[14px] text-cta font-semibold group-hover:gap-3 transition-all">
-                לקריאה <Icon name="ArrowL" size={14} />
-              </span>
-            </a>
-          ))
-        }
-      </div>
-    </Reveal>
 
     <CTABand
       class="mt-16"

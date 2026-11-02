@@ -8,6 +8,7 @@ const links = [
   { href: "/#about", label: "אודות" },
   { href: "/#approach", label: "הגישה הטיפולית" },
   { href: "/#thoughts", label: "מחשבות על..." },
+  { href: "/articles", label: "מאמרים" },
   { href: "/#contact", label: "יצירת קשר" }
 ];
 ---
@@ -27,7 +28,8 @@ const links = [
         <a href={l.href}
           class="nav-link transition font-semibold hover:text-ink"
           data-nav-link
-          data-section={l.href.split('#')[1]}>
+          data-section={l.href.split('#')[1]}
+          aria-current={l.href === '/articles' && Astro.url.pathname.startsWith('/articles') ? 'page' : undefined}>
           {l.label}
         </a>
       ))}
@@ -113,6 +115,11 @@ const links = [
     }
 
     navLinks.forEach((link) => {
+      // Page links (/articles) have no section; they are marked by aria-current instead.
+      if (!link.hasAttribute('data-section')) {
+        link.classList.toggle('text-cta', link.getAttribute('aria-current') === 'page');
+        return;
+      }
       const isActive = link.getAttribute('data-section') === cur;
       link.classList.toggle('active', isActive);
       link.classList.toggle('text-cta', isActive);

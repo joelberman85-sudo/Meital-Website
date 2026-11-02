@@ -18,6 +18,8 @@ const {
   imageAlt = '',
   sources,
   extra,
+  backHref = '/#thoughts',
+  backLabel = 'חזרה לכל המחשבות',
 } = Astro.props;
 ---
 
@@ -32,11 +34,11 @@ const {
     <div class="max-w-[860px] mx-auto px-6 lg:px-10">
       <Reveal>
         <a
-          href="/#thoughts"
+          href={backHref}
           class="group inline-flex items-center gap-2.5 text-sage-deep font-semibold text-[15px] hover:text-cta transition"
         >
           <Icon name="ArrowL" size={15} />
-          <span>חזרה לכל המחשבות</span>
+          <span>{backLabel}</span>
         </a>
       </Reveal>
 

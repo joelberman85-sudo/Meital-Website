@@ -16,6 +16,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
+const isGuide = entry.collection === 'guides';
 ---
 
 <ArticleLayout
@@ -29,6 +30,8 @@ const d = entry.data;
   imageAlt={d.imageAlt}
   sources={d.sources}
   extra={d.extra}
+  backHref={isGuide ? '/articles' : '/#thoughts'}
+  backLabel={isGuide ? 'חזרה לכל המאמרים' : 'חזרה לכל המחשבות'}
 >
   <Content />
 </ArticleLayout>
